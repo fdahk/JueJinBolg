@@ -1,0 +1,9 @@
+// 在 Common.scss 中编写的样式被全局引入（例如通过 main.js 或其他全局入口文件导入），那么这些样式会全局生效。
+// 重置样式
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  
+}
