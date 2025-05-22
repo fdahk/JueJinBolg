@@ -1,9 +1,7 @@
 <script setup>
-
+import TopAdvt from './components/TopAdvt.vue';
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <TopAdvt />
 </template>
