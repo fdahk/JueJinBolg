@@ -1,10 +1,13 @@
-<script>
-
+<script setup>
+  import { RouterLink} from 'vue-router'
 </script>
 
 <template>
-  <div></div>
+  <div class="Nav">
+    <router-link to="/">首页</router-link>    
+  </div>
 </template>
 
-<style>
+<style scoped lang="scss">
+
 </style>
