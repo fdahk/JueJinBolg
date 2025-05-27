@@ -3,9 +3,7 @@
 </script>
 
 <template>
-  <div class="Nav">
-    
-  </div>
+  <div>文章</div>
 </template>
 
 <style scoped lang="scss">
