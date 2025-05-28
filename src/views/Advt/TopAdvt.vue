@@ -2,7 +2,7 @@
 <script setup>
   const close = () => {
     const box = document.querySelector('.box')
-    box.classList.remove('show')
+    box.remove()
   }
 </script>
 
@@ -26,6 +26,7 @@
     width: 100%;
     height: 38.8px;
     background-color: green;
+    transition: 1s;
     a {
       // width: 80%;
       // height: 100%;

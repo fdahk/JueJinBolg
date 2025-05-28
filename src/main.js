@@ -6,6 +6,9 @@ import App from './App.vue'
 import router from './router'
 // 引入全局样式，
 import '@/styles/Common.scss'
+//全局引入ElIcons
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
 
 // 创建一个 Vue 应用实例，App 是根组件（通常是 App.vue）
 // 一个 Vue 应用实例（app）是 Vue 3 中通过 createApp() 创建的一个对象，它代表整个 Vue 应用程序的“核心容器”。
@@ -23,3 +26,6 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
