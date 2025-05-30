@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
+import { getSearchContents, getHistoryList } from '@/apis/search'
 // 点击效果实现
 const actIndex = ref(0)
 const setActIndex = (index) => {
@@ -12,11 +13,13 @@ const navItems = [
   { label: '课程', path: '/course'}
 ]
 // 搜索框数据绑定
-const searchContent = ref('')
-const handleSearch = () => {
-
+const searchQuery = ref()
+const searchContents = ref()
+const handleSearchQuery = async () => {
+  const res = await getSearchContents({searchQuery: searchQuery.value.trim()})
+  console.log(res.data)
 }
-const historyList = ref([])
+const historyList = ref()
 // 搜索框焦点事件
 const showHistory = ref(false)
 const changeHistory = () => {
@@ -39,7 +42,9 @@ const changeHistory = () => {
       <!-- container要写高度，防止子元素撑大容器，导致变形 -->
       <div class="container" :class="{active: showHistory === true}">
         <div ref="searchBox" class="searchBox" :class="{active: showHistory === true}">
-          <input type="text" placeholder="请输入搜索内容" v-model="searchContent" @keyup.enter="search" @focus="changeHistory" @blur="changeHistory">
+          <input type="text" placeholder="请输入搜索内容" 
+          v-model="searchQuery" @keyup.enter="handleSearchQuery()" 
+          @focus="changeHistory" @blur="changeHistory">
         <!-- 字体图标· -->
           <div class="iconBox" :class="{active: showHistory === true}">
             <el-icon ><Search style="width: 1em; height: 1em;"/></el-icon>
@@ -127,7 +132,7 @@ const changeHistory = () => {
     .historySearch {
       flex: 0 1 100%;
       background-color: white;
-      border: 1px solid rgba(119, 118, 118, 0.5);
+      border: 1px solid rgba(119, 118, 118, 0.3);
       border-radius: 4px;
       overflow: hidden;
 
@@ -136,7 +141,7 @@ const changeHistory = () => {
         height: 25px;
         display: flex;
         align-items: center;
-        border: 1px solid rgba(119, 118, 118, 0.5);
+        border: 1px solid rgba(151, 146, 146, 0.3);
         justify-content: space-between;
         .left {
           // 奇怪，默认是工字光标
@@ -157,7 +162,7 @@ const changeHistory = () => {
         .historyContent {
           overflow: hidden;
           padding-left: 8px;
-          border-bottom: 1px solid rgba(119, 118, 118, 0.2);
+          // border-bottom: 1px solid rgba(119, 118, 118, 0.2);
         }
       }
 

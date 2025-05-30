@@ -3,6 +3,6 @@ import axios from 'axios'
 const baseURL = 'http://127.0.0.1:3007'
 const httpInstance = axios.create({
   baseURL,
-  timeout: 5000
+  timeout: 60000
 })
 export default httpInstance
