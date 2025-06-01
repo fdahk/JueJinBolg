@@ -1,7 +1,11 @@
 <script setup>
+import userCenter from './components/userCenter.vue'
+import creatorCenter  from './components/creatorCenter.vue'
+import userNotice from './components/userNotice.vue'
 import { ref } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
+
 // 点击效果实现
 const actIndex = ref(0)
 const setActIndex = (index) => {
@@ -22,10 +26,12 @@ const handleSearchQuery = async () => {
 const historyList = ref()
 // 搜索框焦点事件
 const showHistory = ref(false)
+// 隐藏创作者中心
+const creatorContainerShow = ref(true)
 const changeHistory = () => {
   showHistory.value = !showHistory.value
+  creatorContainerShow.value = !creatorContainerShow.value
 }
-
 </script>
 
 <template>
@@ -44,7 +50,7 @@ const changeHistory = () => {
         <div ref="searchBox" class="searchBox" :class="{active: showHistory === true}">
           <input type="text" placeholder="请输入搜索内容" 
           v-model="searchQuery" @keyup.enter="handleSearchQuery()" 
-          @focus="changeHistory" @blur="changeHistory">
+          @focus="changeHistory" @blur="changeHistory" >
         <!-- 字体图标· -->
           <div class="iconBox" :class="{active: showHistory === true}">
             <el-icon ><Search style="width: 1em; height: 1em;"/></el-icon>
@@ -62,9 +68,9 @@ const changeHistory = () => {
            </div>
         </div>
       </div>
-      
-      
-      
+      <userCenter />
+      <creatorCenter :creatorContainerShow="creatorContainerShow"/>
+      <userNotice />
     </div>
   </div>
 
@@ -82,6 +88,7 @@ const changeHistory = () => {
   }
   .nav {
     display: flex;
+    position: relative;
     padding-left: 200px;
     padding-right: 200px;
     height: 50px;
@@ -127,7 +134,7 @@ const changeHistory = () => {
     height: 36px;
     width: 250px;
     &.active {
-      width: 350px;
+      width: 372px;
     }
     .historySearch {
       flex: 0 1 100%;
@@ -185,7 +192,7 @@ const changeHistory = () => {
     // 搜索框激活样式
     &.active {
         border: rgb(83, 140, 224) 1px solid;
-        width: 350px;
+        width: 372px;
       }
     input {  
       border: none;
@@ -206,7 +213,7 @@ const changeHistory = () => {
       display: flex;
       align-items: center;
       &.active {
-        background-color: blue;
+        background-color: $primaryColor;
       }
     }
   }
