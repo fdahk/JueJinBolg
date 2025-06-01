@@ -11,10 +11,12 @@ app.use(cors())
 
 // 引入路由
 import search from './router/search.js'
+import login from './router/login.js';
 // 解析json数据的中间件
 app.use(express.json())
 
 app.use('/api',search)
+app.use('/api', login);
  // 调用 app.listen 方法，指定端口号并启动web服务器
 app.listen(3007, function () {
   console.log('api server running at http://127.0.0.1:3007')
