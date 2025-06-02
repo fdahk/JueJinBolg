@@ -20,3 +20,21 @@ li {
   list-style: none;
 
 }
+input {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+body {
+  width: 100%;
+  height: 100vh;
+  #app {
+    width: 100%;
+    height: 100%;
+  }
+}
