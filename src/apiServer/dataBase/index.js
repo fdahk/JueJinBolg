@@ -13,7 +13,7 @@ const db = mysql.createPool({
 export default db
 
 
-//数据库测试代码
+// 数据库测试代码
 // db.query('select 1', (err, results) => {
 //   if (err) return console.log(err.message)
 //   console.log(results)

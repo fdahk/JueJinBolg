@@ -14,12 +14,12 @@
     </div>
     <div class="inputChaptchaBox"> 
       <div class="inputChaptchaLeft">
-        <input type="text" placeholder="请输入验证码" class="inputChaptcha">
+        <input type="text" placeholder="请输入密码" class="inputChaptcha">
       </div>
       <button class="getChaptcha">忘记密码</button>
     </div>
     <div class="loginConfirmBox">
-      <button class="confirmLogin">登录/注册</button>
+      <button class="confirmLogin">登录</button>
     </div>
     <div class="otherLoginBox">
         <p style="color: rgba(0, 0, 0, .8); ">其他登陆:</p>

@@ -1,9 +1,47 @@
 <script setup>
-  import { defineEmits } from 'vue';
+  import { defineEmits, ref } from 'vue';
+  import { handleGetCaptchaReq,handleCaptchaLoginReq } from '@/apis/login';
+  
   const emit = defineEmits(['change']);
   const change = () => {
     emit('change');
   }
+  // 数据 
+  const phone = ref('')
+  const captcha = ref('');       // 验证码
+  const countdown = ref(0);      // 倒计时（秒 
+  const errorMessage = ref('');  // 错误消息
+  // 获取验证码
+  const handleGetCaptcha = async () => {
+    // 验证手机号格式
+    if (!/^1[3-9]\d{9}$/.test(phone.value)) {
+      errorMessage.value = '请输入有效的11位手机号';
+      return
+    }
+    errorMessage.value = '';  // 清空错误消息
+    // 调用请求
+    await handleGetCaptchaReq({ phone: phone.value });
+    countdown.value = 60;  // 设置倒计时为60秒
+    const timer = setInterval(() => {
+      if (countdown.value > 0) {
+        countdown.value--;
+      } else {
+        clearInterval(timer);  // 清除定时器
+      }
+    }, 1000);
+  }  
+  // 登录请求
+  const handleLogin = async () => {
+    // 验证手机号格式
+    if (!/^1[3-9]\d{9}$/.test(phone.value)) {
+      errorMessage.value = '请输入有效的11位手机号';
+      return;
+    }
+    // 调用登录请求，返回token等 
+    const res = await handleCaptchaLoginReq({phone: phone.value, captcha: captcha.value})
+    console.log("登陆成功")
+  }
+
 </script>
 
 <template>
@@ -14,17 +52,18 @@
         +86
       </div>
       <div class="inputPhoneRight">
-        <input type="text" placeholder="请输入手机号" class="inputPhone">
+        <input type="text" placeholder="请输入手机号" class="inputPhone" v-model="phone">
       </div>
     </div>
-    <div class="inputChaptchaBox"> 
-      <div class="inputChaptchaLeft">
-        <input type="text" placeholder="请输入验证码" class="inputChaptcha">
+    <div class="inputCaptchaBox"> 
+      <div class="inputCaptchaLeft">
+        <input type="text" placeholder="请输入验证码" class="inputCaptcha" v-model="captcha">
       </div>
-      <button class="getChaptcha">获取验证码</button>
+      <button class="getCaptcha" @click="handleGetCaptcha" :disabled="countdown>0">{{ countdown>0 ? `${countdown}s后重试` : "获取验证码" }}</button>
     </div>
     <div class="loginConfirmBox">
-      <button class="confirmLogin">登录/注册</button>
+      <button class="confirmLogin" @click="handleLogin">登录/注册</button>
+      <!-- 没有添加错误提示 -->
     </div>
     <div class="otherLoginBox">
         <p style="color: rgba(0, 0, 0, .8); ">其他登陆:</p>
@@ -74,7 +113,7 @@
       }
     }
     // 验证码输入框
-    .inputChaptchaBox {
+    .inputCaptchaBox {
       width: 100%;
       height: 2.5rem;
       border-radius: 5px;
@@ -83,7 +122,7 @@
       align-items: center;
       background-color: rgba(93, 87, 87, 0.1);
       margin-bottom: 20px;
-      .inputChaptchaLeft {
+      .inputCaptchaLeft {
         height: 100%;
           flex: 1;
         input {
@@ -94,7 +133,7 @@
           background-color: rgba(93, 87, 87, 0); 
         }
       }
-      .getChaptcha {
+      .getCaptcha {
         height: 100%;
         padding-right: 10px;
         color: $primaryColor;

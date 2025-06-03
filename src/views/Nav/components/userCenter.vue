@@ -49,9 +49,10 @@
     width: 50px;
     display: flex;
     align-items: center;
-    position: absolute;
+    // position: absolute;
     // padding: 8px 0 8px 0;
-    right: 20px;
+    // right: 20px;
+    margin-left: auto;
   }
   .userCenter {
     width: 38px;

@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/searchContents', (req, res) => {
   const {searchQuery} = req.query;
+  // 注意要有通配符%
   // const sql = `select keyWords, contents from searchContents where keyWords like '%${searchQuery}%'`
   const sql = `select keyWords, contents from searchdatas where keyWords like '${searchQuery}`
   db.query(sql,[searchQuery], (err, results) => {

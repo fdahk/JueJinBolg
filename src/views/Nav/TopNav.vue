@@ -2,10 +2,12 @@
 import userCenter from './components/userCenter.vue'
 import creatorCenter  from './components/creatorCenter.vue'
 import userNotice from './components/userNotice.vue'
-import { ref } from 'vue'
+import openLogin from './components/openLogin.vue'
+import LoginView from '@/views/Login/indexView.vue'
+import { ref,defineProps } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
-
+import { useLoginStore } from '@/stores/login'
 // 点击效果实现
 const actIndex = ref(0)
 const setActIndex = (index) => {
@@ -31,6 +33,10 @@ const creatorContainerShow = ref(true)
 const changeHistory = () => {
   showHistory.value = !showHistory.value
   creatorContainerShow.value = !creatorContainerShow.value
+}
+// 与登录页数据通信
+const handleOpenLogin = () => {
+  useLoginStore().openLogin()
 }
 </script>
 
@@ -68,9 +74,11 @@ const changeHistory = () => {
            </div>
         </div>
       </div>
-      <userCenter />
       <creatorCenter :creatorContainerShow="creatorContainerShow"/>
       <userNotice />
+      <userCenter />
+      <openLogin @handleOpenLogin="handleOpenLogin" />
+
     </div>
   </div>
 

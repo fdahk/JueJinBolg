@@ -1,8 +1,11 @@
 <script setup> 
-  import {ref} from 'vue'
-  import { handleLogin, handleReg } from '@/apis/login';
+  import {ref, defineExpose} from 'vue'
+  import { handleLogin } from '@/apis/login';
   import phoneLogin from './components/phoneLogin.vue'
   import accountLogin from './components/accountLogin.vue'
+  import {useLoginStore} from '@/stores/login'
+//  const emit = defineEmits(['updateShowLogin'])
+  // 登录
   // 登录表单数据
   const loginForm = ref({
     userName: '',
@@ -19,14 +22,22 @@
   const handleChangeLoginMethod = () => {
     changeLoginMethod.value = !changeLoginMethod.value
   }
+  //关闭登陆页面 
+  const showLogin = ref(false)
+  const handleCloseLogin = () => {
+    useLoginStore().closeLogin()
+  }
+  defineExpose({
+    showLogin
+  })
 </script>
 
 <template>
-  <div class="loginContainer">
+  <div class="loginContainer" v-show="useLoginStore().showLogin">
     <div class="loginBox">
       <div class="loginBoxHead">
         <h2 style="font-weight: 400;">登录掘金畅享更多权益</h2>
-        <el-icon style="height: 25px; width: 25px;">
+        <el-icon style="height: 25px; width: 25px; cursor: pointer;" @click="handleCloseLogin">
           <Close />
         </el-icon>
       </div>
@@ -46,16 +57,24 @@
       <div class="loginBoxFoot">
         <div class="agreeBox1">
           注册登录即表示同意
-          <a href="">用户协议</a>
+          <a href="https://lf3-cdn-tos.draftstatic.com/obj/ies-hotsoon-draft/juejin/86857833-55f6-4d9e-9897-45cfe9a42be4.html" target="_blank">
+            用户协议
+          </a>
           和 
-          <a href="">隐私政策</a>
+          <a href="https://lf3-cdn-tos.draftstatic.com/obj/ies-hotsoon-draft/juejin/7b28b328-1ae4-4781-8d46-430fef1b872e.html" target="_blank">
+            隐私政策
+          </a>
         </div>
         <div class="agreeBox2">
           <input type="checkbox" checked>
           注册时允许授权注册Trae
-          <a href="">用户协议</a>
+          <a href="https://www.trae.com.cn/terms-of-service?utm_source=juejin&utm_medium=juejin_trae&utm_campaign=juejin_content" target="_blank">
+            用户协议
+          </a>
           和 
-          <a href="">隐私政策</a>
+          <a href="https://www.trae.com.cn/privacy-policy?utm_source=juejin&utm_medium=juejin_trae&utm_campaign=juejin_content" target="_blank">
+            隐私政策
+          </a>
         </div>        
       </div>
     </div>  
@@ -130,6 +149,7 @@
       display: flex;
       align-items: center;
       flex-direction: column;
+      margin-top: 20px;
       .agreeBox1 {
         font-size: .9rem;
         color: rgba(0, 0, 0,.5);
