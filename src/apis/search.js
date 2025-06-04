@@ -10,6 +10,6 @@ export const getHistoryList = ({username}) => {
 // 获取搜索内容
 export const getSearchContents = ({searchQuery}) => {
   return httpInstance.get('/api/searchContents', {
-    params: {searchQuery}
+    params :{searchQuery}
   })
 }

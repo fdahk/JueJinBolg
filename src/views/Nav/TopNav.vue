@@ -8,6 +8,9 @@ import { ref,defineProps } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
 import { useLoginStore } from '@/stores/login'
+// 用户信息
+import { useUserStore } from '@/stores/user'
+const user = useUserStore()
 // 点击效果实现
 const actIndex = ref(0)
 const setActIndex = (index) => {
@@ -77,7 +80,7 @@ const handleOpenLogin = () => {
       <creatorCenter :creatorContainerShow="creatorContainerShow"/>
       <userNotice />
       <userCenter />
-      <openLogin @handleOpenLogin="handleOpenLogin" />
+      <openLogin @handleOpenLogin="handleOpenLogin" v-show="!user.token"/>
 
     </div>
   </div>

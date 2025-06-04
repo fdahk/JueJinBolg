@@ -1,7 +1,8 @@
 <script setup>
   import { defineEmits, ref } from 'vue';
   import { handleGetCaptchaReq,handleCaptchaLoginReq } from '@/apis/login';
-  
+  import { useLoginStore } from '@/stores/login';
+import { useUserStore } from '@/stores/user';
   const emit = defineEmits(['change']);
   const change = () => {
     emit('change');
@@ -19,7 +20,7 @@
       return
     }
     errorMessage.value = '';  // 清空错误消息
-    // 调用请求
+    // 调用获取验证码请求
     await handleGetCaptchaReq({ phone: phone.value });
     countdown.value = 60;  // 设置倒计时为60秒
     const timer = setInterval(() => {
@@ -39,7 +40,12 @@
     }
     // 调用登录请求，返回token等 
     const res = await handleCaptchaLoginReq({phone: phone.value, captcha: captcha.value})
-    console.log("登陆成功")
+    if(res.data.code === 200) {
+      console.log("登陆成功")
+      useLoginStore().closeLogin()  // 关闭登录页面
+      // 储存token等信息
+      useUserStore().token = res.data.token
+    }
   }
 
 </script>
