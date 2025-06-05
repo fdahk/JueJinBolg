@@ -28,7 +28,7 @@ const handleOpenLogin = () => {
     // position: absolute;
     // right: 0;
     margin-left: auto;
-
+    
   }
   .openLoginBox {
     display: flex;

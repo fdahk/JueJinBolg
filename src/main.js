@@ -1,6 +1,9 @@
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+// pinia持久化插件
+import { createPersistedState } from 'pinia-plugin-persistedstate'
+import { useUserStore } from './stores/user'
 
 import App from './App.vue'
 import router from './router'
@@ -22,7 +25,13 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // 应用配置
 // 所以你可以认为它是整个 Vue 应用的“大脑”。
 const app = createApp(App)
-app.use(createPinia())
+// 持久化的pinia实例
+app.use(createPinia().use(createPersistedState()))
+//注意写的位置，要在创建pinia实例之后，否则会报错
+const userStore = useUserStore()
+if(userStore.isTokenExpired()) {
+  userStore.isLogin = true
+}
 app.use(router)
 
 app.mount('#app')

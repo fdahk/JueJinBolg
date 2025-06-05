@@ -45,6 +45,7 @@ import { useUserStore } from '@/stores/user';
       useLoginStore().closeLogin()  // 关闭登录页面
       // 储存token等信息
       useUserStore().token = res.data.token
+      useUserStore().isLogin = true
     }
   }
 

@@ -1,22 +1,9 @@
 <script setup> 
   import {ref, defineExpose} from 'vue'
-  import { handleLogin } from '@/apis/login';
-  import phoneLogin from './components/phoneLogin.vue'
-  import accountLogin from './components/accountLogin.vue'
+  import phoneLogin from './components/captchaLogin.vue'
+  import accountLogin from './components/passwordLogin.vue'
   import {useLoginStore} from '@/stores/login'
-//  const emit = defineEmits(['updateShowLogin'])
-  // 登录
-  // 登录表单数据
-  const loginForm = ref({
-    userName: '',
-    passWord: ''
-  })
-  // 注册表单数据
-  const regForm = ref({
-    userName: '',
-    passWord: '',
-    passWord2: ''
-  })
+
   // 切换登录方式
   const changeLoginMethod = ref(false)
   const handleChangeLoginMethod = () => {

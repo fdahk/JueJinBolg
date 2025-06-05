@@ -82,6 +82,29 @@ const router = express.Router();
 //   }
 // })
 
+// 手机号加密登录接口
+router.post("/passwordLogin", async(req, res) => {
+  const {phone, password} = req.body.params
+  try {
+    const sql = 'select * from users where phone =?'
+    const [userRes] = await db.query(sql, [phone])
+    // console.log(userRes) //调试
+    if(userRes.length === 0) {
+      return res.json({code: 400, message: '用户不存在'})
+    }
+    if(userRes[0].password !== password) {
+      return res.json({code: 400, message: '密码错误'})
+    }
+    // 生成token
+    const token = jwt.sign({phone}, config.jwtSecretKey, {expiresIn: '24h'}) // 24小时过期
+    console.log(userRes) //调试
+    // res.json({code: 200, message: '登录成功', token: token, userInfo: userRes[0]})
+    res.json({code: 200, message: '登录成功', token: token, userName: userRes[0].username, userPic: userRes[0].userpic})  
+  }catch {
+    res.status(500).json({code: 500, message: '服务器错误'})
+  }
+  
+})
 
 // 手机号+验证码登录接口
 // 1.发送验证码接口

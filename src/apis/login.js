@@ -4,15 +4,15 @@ import httpInstance from "@/utils/http";
 
 // 账号密码登录请求
 // 没有实现复杂的数据预校验，后期可以来补充一下
-export const handleLogin = async ({userName, passWord}) => {
-  if(!userName || !passWord){
-    return Promise.reject('请输入用户名和密码')
+export const handlePasswordLoginReq =  ({phone, password}) => {
+  if(!phone || !password){
+    return '请输入用户名和密码'
   }
-  return httpInstance.post( '/api/login', 
+  return httpInstance.post( '/api/passwordLogin', 
     {
-      params: {userName, passWord}
+      params: {phone, password}
     })
-  // 可以添加成功后的逻辑，跳转等
+  // 可以添加成功后的通用逻辑，跳转等
 }
 
 // 验证码登录请求

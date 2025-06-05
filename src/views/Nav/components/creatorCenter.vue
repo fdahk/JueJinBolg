@@ -6,7 +6,7 @@
   }
   // 隐藏创作者中心功能
   const props = defineProps({
-    creatorContainerShow: {
+    showCreatorContainer: {
       type: Boolean,
       default: true
     }
@@ -14,7 +14,7 @@
 </script>
 
 <template>
-  <div class="creatorCenterContainer" :class="{active: creatorContainerShow === false}">
+  <div class="creatorCenterContainer" :class="{active: showCreatorContainer === false}">
     <div class="creatorCenterBox">
       <button>创作者中心</button>
       <el-icon class=" creatorCenterIconBox" @click="changeCreatorMenue">

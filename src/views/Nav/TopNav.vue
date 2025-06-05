@@ -1,16 +1,17 @@
 <script setup>
+// 引入vue组件时，不要少了文件后缀，回报错
 import userCenter from './components/userCenter.vue'
 import creatorCenter  from './components/creatorCenter.vue'
 import userNotice from './components/userNotice.vue'
 import openLogin from './components/openLogin.vue'
-import LoginView from '@/views/Login/indexView.vue'
+import navSearch from './components/navSearch.vue'
 import { ref,defineProps } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
 import { useLoginStore } from '@/stores/login'
 // 用户信息
 import { useUserStore } from '@/stores/user'
-const user = useUserStore()
+const userStore = useUserStore()
 // 点击效果实现
 const actIndex = ref(0)
 const setActIndex = (index) => {
@@ -21,26 +22,22 @@ const navItems = [
   { label: '首页', path: '/'},
   { label: '课程', path: '/course'}
 ]
-// 搜索框数据绑定
-const searchQuery = ref()
-const searchContents = ref()
-const handleSearchQuery = async () => {
-  const res = await getSearchContents({searchQuery: searchQuery.value.trim()})
-  console.log(res.data)
-}
-const historyList = ref()
-// 搜索框焦点事件
-const showHistory = ref(false)
-// 隐藏创作者中心
-const creatorContainerShow = ref(true)
-const changeHistory = () => {
-  showHistory.value = !showHistory.value
-  creatorContainerShow.value = !creatorContainerShow.value
-}
+
+
+
 // 与登录页数据通信
 const handleOpenLogin = () => {
   useLoginStore().openLogin()
 }
+// 与搜索组件数据交互
+const showHistory = ref(false)
+// 触发changeHistory的同时隐藏创作者中心
+const showCreatorContainer = ref(true)
+const changeHistory = (x) => {
+  showHistory.value = x
+  showCreatorContainer.value = !showHistory.value
+}
+
 </script>
 
 <template>
@@ -54,33 +51,11 @@ const handleOpenLogin = () => {
           <RouterLink :to="item.path" :class="{active: index === actIndex}">{{ item.label }}</RouterLink>
         </li>
       </ul>
-      <!-- container要写高度，防止子元素撑大容器，导致变形 -->
-      <div class="container" :class="{active: showHistory === true}">
-        <div ref="searchBox" class="searchBox" :class="{active: showHistory === true}">
-          <input type="text" placeholder="请输入搜索内容" 
-          v-model="searchQuery" @keyup.enter="handleSearchQuery()" 
-          @focus="changeHistory" @blur="changeHistory" >
-        <!-- 字体图标· -->
-          <div class="iconBox" :class="{active: showHistory === true}">
-            <el-icon ><Search style="width: 1em; height: 1em;"/></el-icon>
-          </div>
-        </div>
-        <div class="historySearch" v-show="showHistory">
-          <div class="historyTitle">
-            <span class="left">搜索历史</span>
-            <span class="right">清空</span>
-          </div>
-          <!-- <div v-for="(item, index) in historyList" :key=index></div> -->
-           <div class="historyList">
-            <div class="historyContent">1</div>
-            <div>2</div>
-           </div>
-        </div>
-      </div>
-      <creatorCenter :creatorContainerShow="creatorContainerShow"/>
+      <navSearch :showHistory="showHistory" @changeHistory="changeHistory"/>
+      <creatorCenter :showCreatorContainer="showCreatorContainer"/>
       <userNotice />
-      <userCenter />
-      <openLogin @handleOpenLogin="handleOpenLogin" v-show="!user.token"/>
+      <userCenter v-show="userStore.isLogin"/>
+      <openLogin @handleOpenLogin="handleOpenLogin" v-show="!userStore.isLogin"/>
 
     </div>
   </div>
@@ -100,8 +75,8 @@ const handleOpenLogin = () => {
   .nav {
     display: flex;
     position: relative;
-    padding-left: 200px;
-    padding-right: 200px;
+    padding-left: 150px;
+    padding-right: 150px;
     height: 50px;
     align-items: center;
   }
@@ -138,96 +113,7 @@ const handleOpenLogin = () => {
     border-bottom: rgb(74, 138, 210) 2px solid;
   }
 
-  //搜索框样式
-  .container {
-    display: flex; 
-    flex-wrap: wrap;  
-    height: 36px;
-    width: 250px;
-    &.active {
-      width: 372px;
-    }
-    .historySearch {
-      flex: 0 1 100%;
-      background-color: white;
-      border: 1px solid rgba(119, 118, 118, 0.3);
-      border-radius: 4px;
-      overflow: hidden;
 
-      .historyTitle {
-        padding: 0 5px 0 10px;
-        height: 25px;
-        display: flex;
-        align-items: center;
-        border: 1px solid rgba(151, 146, 146, 0.3);
-        justify-content: space-between;
-        .left {
-          // 奇怪，默认是工字光标
-          cursor: default;
-          font-size: .8rem;
-          line-height: 2rem;
-          color: rgba(161, 159, 159, .8);
-        }
-        .right {
-          cursor: pointer;
-          font-size: .8rem;
-          line-height: 2rem;
-          color: rgb(50, 107, 156);
-        }
-      }
-      .historyList {
-        border: 1px solid rgba(119, 118, 118, 0.5);
-        .historyContent {
-          overflow: hidden;
-          padding-left: 8px;
-          // border-bottom: 1px solid rgba(119, 118, 118, 0.2);
-        }
-      }
-
-    }
-  }
-  //
-  .searchBox { 
-    display: flex;
-    align-items: center;
-    height: 36px;
-    // 搜索框宽度
-    width: 250px;
-    border: 1px solid rgba(119, 118, 118, 0.5);
-    flex-wrap: wrap;
-    z-index: 5;
-    transition: .3s;
-    border-radius: 4px;
-    // 不加溢出隐藏会导致边线缺失
-    overflow: hidden;
-    // 搜索框激活样式
-    &.active {
-        border: rgb(83, 140, 224) 1px solid;
-        width: 372px;
-      }
-    input {  
-      border: none;
-      // 焦点边框样式去除
-      outline: none;
-      // 利用padding扩大点击范围
-      padding: .6rem 0 .6rem 1rem;
-      // 弹性适配
-      flex: 1;
-      
-      // 无效，写错地方了，应该在外面的box写
-      // border-radius: 50px;
-    }
-    .iconBox {
-      padding-left: 10px;
-      padding-right: 10px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      &.active {
-        background-color: $primaryColor;
-      }
-    }
-  }
   
   
 </style>

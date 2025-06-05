@@ -1,8 +1,37 @@
 <script setup>
+  import {ref} from 'vue'
+  import { handlePasswordLoginReq } from '@/apis/login';
+  import { useUserStore } from '@/stores/user';
+  import { useLoginStore } from '@/stores/login';
+  const userStore = useUserStore()
+  const loginStore = useLoginStore()
   import { defineEmits } from 'vue';
   const emit = defineEmits(['change']);
   const change = () => {
     emit('change');
+  }
+  // 登录
+  const password = ref('') 
+  const phone = ref('')
+  const HandlePasswordLogin = async () => {
+    // 以下写法会导致index.js:33  Uncaught (in promise) TypeError: Converting circular structure to JSON 报错
+    // const res = await handlePasswordLoginReq({phone, password})
+    const res = await handlePasswordLoginReq({phone:phone.value, password: password.value})
+    console.log(res);// 调试
+    // 后端send、statue发送的信息通过res.data.获取
+    if(res.data.code === 200) {
+      alert('登录成功')
+      userStore.isLogin = true 
+      // 这里可以优化下，将store的用户信息写成数组或对象形式，直接解构赋值方便点
+      userStore.userName = res.data.userName
+      userStore.userPic = res.data.userPic
+      loginStore.showLogin = false
+    } else if(res.data.code === 400) {
+      alert('账号或密码错误')
+    }else {
+      alert('服务器异常')
+    }
+
   }
 </script>
 
@@ -10,16 +39,16 @@
   <div class="loginBoxBodyLeft">
     <h3 style="color: rgba(0, 0, 0, .8); font-weight: 500; padding-bottom: 10px;">密码登录</h3>
     <div class="inputPhoneBox">
-      <input type="text" placeholder="请输入手机号" class="inputPhone">
+      <input type="text" placeholder="请输入手机号" class="inputPhone" v-model="phone">
     </div>
     <div class="inputChaptchaBox"> 
       <div class="inputChaptchaLeft">
-        <input type="text" placeholder="请输入密码" class="inputChaptcha">
+        <input type="text" placeholder="请输入密码" class="inputChaptcha" v-model="password">
       </div>
       <button class="getChaptcha">忘记密码</button>
     </div>
     <div class="loginConfirmBox">
-      <button class="confirmLogin">登录</button>
+      <button class="confirmLogin" @click="HandlePasswordLogin">登录</button>
     </div>
     <div class="otherLoginBox">
         <p style="color: rgba(0, 0, 0, .8); ">其他登陆:</p>

@@ -1,5 +1,5 @@
 <script setup>
-import CategorySorts from '@/views/CourseView/IndexView.vue'
+import CategorySorts from '@/views/CourseView/components/CategorySorts.vue'
 </script>
 
 <template>

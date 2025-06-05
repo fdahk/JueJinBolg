@@ -1,5 +1,8 @@
 <script setup>
   import {ref,onMounted} from 'vue'
+  import { useUserStore } from '@/stores/user'
+  const userStore = useUserStore()
+  // 展开个人中心
   const showMenue = ref(false)
   const changeShowMenue = () => {
     showMenue.value = !showMenue.value
@@ -13,22 +16,29 @@
   onMounted(() => {
     document.addEventListener('click', handleClick)
   })
+  // 头像
+  const userPic = ref('')
+  onMounted(() => {
+    userPic.value = userStore.userInfo?.avatarUrl || '@\assets\images\B.jpg'
+  })
 </script>
 
 <template>
   <div class="userBox">
     <div class="userCenter"> 
-      <img src="@\assets\images\B.jpg" alt="" @click="changeShowMenue()" id=""> 
+      <!-- src="@\assets\images\B.jpg" 注意和:src的路径写法区别-->
+      <!-- 注意使用bind实现动态src -->
+      <img :src="userStore.userPic || 'src\\assets\\images\\B.jpg'" alt="NULL" @click="changeShowMenue()" id=""> 
       
     </div>    
     <div class="menue" v-show="showMenue">
       <div class="menueHead">
         <div class="menueHeadLeft">
-          <img src="@\assets\images\B.jpg" alt="">
+          <img :src="userStore.userPic || 'src\\assets\\images\\B.jpg'"alt="NULL">
         </div>
         <div class="menueHeadRight">
           <div class="menueUserName">
-            <span>陈冠希</span>
+            <span>{{ userStore.userName }}</span>
           </div>
           <div class="menueUserRank">
             <span>lv100</span>
@@ -53,6 +63,8 @@
     // padding: 8px 0 8px 0;
     // right: 20px;
     margin-left: auto;
+    // 没加这个，menue会错位
+    position: relative;
   }
   .userCenter {
     width: 38px;
