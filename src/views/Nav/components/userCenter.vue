@@ -19,8 +19,13 @@
   // 头像
   const userPic = ref('')
   onMounted(() => {
-    userPic.value = userStore.userInfo?.avatarUrl || '@\assets\images\B.jpg'
+    userPic.value = userStore.userPic
   })
+  // 
+  // 退出登录
+  const logOut = () => {
+    userStore.logOut()
+  }
 </script>
 
 <template>
@@ -28,13 +33,13 @@
     <div class="userCenter"> 
       <!-- src="@\assets\images\B.jpg" 注意和:src的路径写法区别-->
       <!-- 注意使用bind实现动态src -->
-      <img :src="userStore.userPic || 'src\\assets\\images\\B.jpg'" alt="NULL" @click="changeShowMenue()" id=""> 
+      <img :src="userStore.userPic || 'src/assets/images/B.jpg' " alt="NULL" @click="changeShowMenue()" id=""> 
       
     </div>    
     <div class="menue" v-show="showMenue">
       <div class="menueHead">
         <div class="menueHeadLeft">
-          <img :src="userStore.userPic || 'src\\assets\\images\\B.jpg'"alt="NULL">
+          <img :src="userStore.userPic || 'src/assets/images/B.jpg'"alt="NULL">
         </div>
         <div class="menueHeadRight">
           <div class="menueUserName">
@@ -45,8 +50,16 @@
           </div>
         </div>
       </div>
-      <div class="menueUserInfo">
-        
+      <div class="menueBody"> 
+
+      </div>
+      <div class="menueFoot">
+          <!-- to路径解析规则：
+        - / 开头：绝对路径（从根路由开始）
+        - 无 / 开头：相对当前路由层级追加
+        - 空字符串：相当于当前路由，会导致页面刷新 -->
+        <RouterLink to="/setting">设置</RouterLink>
+        <button @click="logOut">退出登录</button>
       </div>
     </div>
   </div>
@@ -63,8 +76,8 @@
     // padding: 8px 0 8px 0;
     // right: 20px;
     margin-left: auto;
-    // 没加这个，menue会错位
-    position: relative;
+    position: relative; // 没加这个，menue会错位
+    z-index: 200000;
   }
   .userCenter {
     width: 38px;
@@ -84,10 +97,14 @@
     height: 350px;
     padding: 8px 8px 8px 8px;
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     top: 100%;
     right: 20%;
     border: 1px rgba(76, 74, 74,.2) solid;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 30000;
     .menueHead {
       width: 100%;
       height: 65px;
@@ -120,6 +137,34 @@
           span {
             color: rgb(230, 13, 13);
           }
+        }
+      } 
+    }
+    .menueBody {
+      width: 100%;
+      height: 250px;
+      border-bottom: 1px solid rgba(2, 2, 2, .1);
+    }
+    .menueFoot {
+      height: 2rem;
+      width: 100%;
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      a {
+        color: rgba(0, 0, 0, .5);
+        font-size: .8rem;
+        &:hover {
+          color: $primaryColor;
+        }
+      }
+      button {
+        background-color: white;
+        color: rgba(0, 0, 0, .5);
+        font-size: .8rem;
+        &:hover {
+          color: $primaryColor;
         }
       } 
     }

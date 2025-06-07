@@ -32,6 +32,12 @@ export const useUserStore = defineStore('user', {
       this.userName = newUserInfo.userName; // 更新用户名
       this.userPic = newUserInfo.userPic; // 更新头像
       this.password = newUserInfo.password; // 更新密码
+    },
+    logOut() { // 退出登录，清除用户信息，token等
+      this.userName = ''; // 清除用户名
+      this.userPic = ''; // 清除头像
+      this.isLogin = false; // 清除登录状态
+      this.token = ''; // 清除token
     }
   }
 })

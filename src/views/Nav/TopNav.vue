@@ -5,7 +5,7 @@ import creatorCenter  from './components/creatorCenter.vue'
 import userNotice from './components/userNotice.vue'
 import openLogin from './components/openLogin.vue'
 import navSearch from './components/navSearch.vue'
-import { ref,defineProps } from 'vue'
+import { ref,defineProps,onMounted,onUnmounted } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
 import { useLoginStore } from '@/stores/login'
@@ -37,12 +37,27 @@ const changeHistory = (x) => {
   showHistory.value = x
   showCreatorContainer.value = !showHistory.value
 }
-
+// 滚动隐藏
+const showTopNav = ref(true)
+const handleScroll = () => {
+  // 后面那个监测老版本的浏览器
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+  if (scrollTop > 10) {
+    showTopNav.value = false
+  } else {
+    showTopNav.value = true
+  }
+}
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
-  <div class="top">
-    <TopAdvt />
+  <div class="top" :class="{active: showTopNav === false}">
     <div class="nav">
       <img class="logo" src="@\assets\images\juejin.png" alt="">
       <ul>
@@ -64,9 +79,18 @@ const changeHistory = (x) => {
 
 <style scoped lang="scss">
   .top {
-    position: fixed;
+    // 关键，只能是这个定位
+    // 会出现遮挡她下面的元素，或者难以实现动态隐藏等问题
+    position: sticky;
+    // 无法触发，这个100%是整个视口的高度，一直是relative
+    // top: -100%;
+    top: 40px;
     background-color: white;
     width: 100%;
+    transition: .3s;
+    &.active {
+      transform: translate3d(0, -100%, 0);
+    }
   }
   .logo {
     // 完美解决图片超出问题
@@ -92,6 +116,7 @@ const changeHistory = (x) => {
       padding-right: 10px;
       display: flex;
       align-items: center;
+      font-size: .9rem;
     }
   }
   a {

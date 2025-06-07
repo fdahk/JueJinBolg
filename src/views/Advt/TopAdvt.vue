@@ -20,13 +20,15 @@
 
 <style scoped lang="scss">
   .box {
-    position: relative;
+    // 
+    position: sticky;
     top: 0;
-    left: 0;
+    // left: 0;
     width: 100%;
     height: 38.8px;
     background-color: green;
     transition: 1s;
+    z-index: 2000;
     a {
       // width: 80%;
       // height: 100%;

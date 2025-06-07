@@ -14,17 +14,20 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 
 // 创建一个 Vue 应用实例，App 是根组件（通常是 App.vue）
-// 一个 Vue 应用实例（app）是 Vue 3 中通过 createApp() 创建的一个对象，它代表整个 Vue 应用程序的“核心容器”。
+// createApp 函数用于创建一个新的 Vue 应用实例，它接收一个根组件作为参数
 // 以App.vue为根进行渲染、挂载各项功能等
+// 这个实例是整个 Vue 应用程序的“核心容器”，代表了整个应用，负责管理组件树、插件、全局注册的组件和指令以及应用配置等
 // 1. app 并不只是代表 App.vue
-// 虽然 app 是通过 createApp(App) 创建的，其中的 App 是 App.vue 根组件，但 app 这个实例其实还包含了更多内容：
-
+// 虽然 app 是通过 createApp(App) 创建的，其中的 App 是 App.vue 根组件，但 app 这个实例其实还包含了更多内容
 // 整个组件树（从 App.vue 开始）
 // 插件（如 Pinia、Vue Router）
 // 全局注册的组件、指令
 // 应用配置
 // 所以你可以认为它是整个 Vue 应用的“大脑”。
-const app = createApp(App)
+// 2.
+// 通过 app.mount('#app') 方法将 Vue 应用实例 app 挂载到这个 DOM 元素上。
+// 挂载之后， App.vue 组件的内容就会渲染到 #app 元素所在的位置。
+const app = createApp(App) // 
 // 持久化的pinia实例
 app.use(createPinia().use(createPersistedState()))
 //注意写的位置，要在创建pinia实例之后，否则会报错
