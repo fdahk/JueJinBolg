@@ -13,7 +13,7 @@ import { showSuccess, showError } from '@/utils/toast.js'
 // 用户信息存储导入
 import { useUserStore } from '@/stores/user.js'
 const userStore = useUserStore()
-import { updateUserInfo } from '@/apis/user.js'
+import { updateUserInfo, updateUserPic } from '@/apis/user.js'
 /**
  * - reactive() 创建响应式对象，对象属性变化会触发视图更新
  * - 对象字面量语法定义初始数据结构
@@ -229,20 +229,78 @@ const handleFileChange = async (event) => {
   
   if (beforeUserPicUpload(file)) {
     try {
-      // 调用API上传头像
-      const result = await ProfileAPI.uploadAvatar(file)
+      // 调试信息
+      // console.log('📷 开始处理头像上传...')
+      // console.log('文件信息:', {
+      //   name: file.name,
+      //   size: file.size,
+      //   type: file.type
+      // })
+      // console.log('当前用户手机号:', userStore.userPhone)
       
-      if (result.success) {
-        userPicUrl.value = result.data.url
-        showSuccessMessage(result.message || '头像上传成功')
+      // 将文件转换为Base64格式
+      const base64Data = await convertFileToBase64(file)
+      console.log('Base64数据长度:', base64Data.length)
+      console.log('Base64前缀:', base64Data.substring(0, 50) + '...')
+      
+      // 检查userPhone是否存在
+      if (!userStore.userPhone) {
+        throw new Error('用户手机号不存在，请重新登录')
+      }
+      
+      // 调用API上传头像
+      console.log('🚀 调用API上传头像...')
+      const result = await updateUserPic(base64Data)
+      console.log('API响应:', result)
+      
+      if (result.data && result.data.code === 200) {
+        // 更新本地头像显示
+        userPicUrl.value = base64Data
+        // 更新store中的头像
+        userStore.userPic = base64Data
+        showSuccessMessage(result.data.message || '头像上传成功')
+        console.log('✅ 头像上传成功!')
       } else {
-        showErrorMessage(result.message || '头像上传失败')
+        console.error('❌ API返回失败:', result.data)
+        showErrorMessage(result.data?.message || '头像上传失败')
       }
     } catch (error) {
-      console.error('头像上传失败:', error)
-      showErrorMessage('头像上传失败，请稍后重试')
+      console.error('❌ 头像上传失败:', error)
+      
+      // 根据错误类型显示不同的错误信息
+      if (error.message.includes('用户手机号不存在')) {
+        showErrorMessage('用户身份验证失败，请重新登录')
+      } else if (error.response) {
+        console.error('HTTP错误:', error.response.status, error.response.data)
+        showErrorMessage(`服务器错误：${error.response.data?.message || '未知错误'}`)
+      } else if (error.code === 'NETWORK_ERROR') {
+        showErrorMessage('网络连接失败，请检查网络连接')
+      } else {
+        showErrorMessage(`头像上传失败：${error.message || '请稍后重试'}`)
+      }
     }
   }
+}
+
+// 将文件转换为Base64格式
+const convertFileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      resolve(e.target.result) // 返回 data:image/jpeg;base64,xxx 格式
+    }
+    reader.onerror = (error) => {
+      reject(error)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+// 安全地获取头像URL，避免null/undefined问题
+const getSafeUserPicUrl = (userPic) => {
+  return (userPic && userPic !== 'null' && userPic !== 'undefined' && userPic.trim() !== '') 
+    ? userPic 
+    : 'src/assets/images/B.jpg'
 }
 
 // 验证整个表单
@@ -275,51 +333,68 @@ const saveProfile = async () => {
     showErrorMessage('请修正表单中的错误信息')
     return  // 提前返回，避免执行后续保存逻辑
   }
-
+  // console.log(formData.userPhone) // 测试
   try {
-    // 可以加个格式化表单数据，去除多余空白等
-    
+    // 格式化表单数据，去除多余空白并处理null值
+    const cleanFormData = {
+      userName: formData.userName.trim(),
+      startWorkDate: formData.startWorkDate,
+      profession: formData.profession,
+      position: formData.position?.trim() || '',
+      company: formData.company?.trim() || '',
+      website: formData.website?.trim() || '',
+      introduction: formData.introduction?.trim() || '',
+      userPhone: formData.userPhone
+    }
+    // console.log(cleanFormData.userPhone) // 测试
     // 调用API发送更新请求，等待服务器响应
-    const result = await updateUserInfo(formData)
+    const result = await updateUserInfo(cleanFormData)
     
     // 根据API返回结果进行相应处理
-    if (result.code === 200) {
+    if (result.data && result.data.code === 200) {
       // 保存成功，显示成功消息
-      showSuccessMessage(result.message || '保存成功')
-      // 更新用户信息
-      userStore.userName = formData.userName
-      userStore.startWorkDate = formData.startWorkDate
-      userStore.profession = formData.profession
-      userStore.position = formData.position
-      userStore.company = formData.company
-      userStore.website = formData.website
-      userStore.introduction = formData.introduction
+      showSuccessMessage(result.data.message || '保存成功')
+      // 使用userStore的updateUserInfo方法更新用户信息
+      userStore.updateUserInfo(cleanFormData)
       console.log('保存成功:', result)  // 控制台记录成功日志
     } else {
       // API返回失败状态，显示错误消息
-      showErrorMessage(result.message || '保存失败')
+      showErrorMessage(result.data?.message || '保存失败')
+      console.error('保存失败:', result)
     }
   } catch (error) {
     // 捕获网络错误、解析错误等异常情况
     console.error('保存失败:', error)  // 控制台记录错误日志
-    showErrorMessage('保存失败，请稍后重试')  // 显示用户友好的错误信息
+    
+    // 根据错误类型显示不同的错误信息
+    if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+      showErrorMessage('网络连接失败，请检查网络连接')
+    } else if (error.response?.status === 500) {
+      showErrorMessage('服务器内部错误，请稍后重试')
+    } else {
+      showErrorMessage('保存失败，请稍后重试')  // 显示用户友好的错误信息
+    }
   }
 }
 
 // 重置表单
 const resetForm = () => {
+  // 安全地从userStore获取数据，避免null值被转换为字符串"null"
+  const safeGetValue = (value) => value && value !== 'null' && value !== 'undefined' ? value : ''
+  
   // Object.assign 方法用于将一个或多个对象的属性复制到目标对象
   Object.assign(formData, {
-    userName: `${userStore.userName}`,
-    startWorkDate: `${userStore.startWorkDate}`,
-    profession: `${userStore.profession}`,
-    position: `${userStore.position}`,
-    company: `${userStore.company}`,
-    website: `${userStore.website}`,
-    introduction: `${userStore.introduction}`,
-    userPhone: `${userStore.userPhone}`
+    userName: safeGetValue(userStore.userName),
+    startWorkDate: safeGetValue(userStore.startWorkDate),
+    profession: safeGetValue(userStore.profession),
+    position: safeGetValue(userStore.position),
+    company: safeGetValue(userStore.company),
+    website: safeGetValue(userStore.website),
+    introduction: safeGetValue(userStore.introduction),
+    userPhone: safeGetValue(userStore.userPhone)
   })
-  userPicUrl.value =  'src/assets/images/B.jpg' || `${userStore.userPic}`
+  // 安全地重置头像URL
+  userPicUrl.value = getSafeUserPicUrl(userStore.userPic)
   
   // 清除所有错误信息
   Object.keys(formErrors).forEach(key => {
@@ -333,11 +408,12 @@ const resetForm = () => {
 const initializeData = async () => {
   try {
     Object.assign(formData, userStore)
-    // 模板字符串的逻辑。当 值是 null 或 undefined 时，${} 会被转换成字符串 "null" 或 "undefined"，导致逻辑判断出错。
-    userPicUrl.value =  'src/assets/images/B.jpg' || `${userStore.userPic} ` 
+    // 安全地设置头像URL，避免null/undefined被转换为字符串
+    userPicUrl.value = getSafeUserPicUrl(userStore.userPic) 
     // console.log(userPicUrl.value) //调试
   } catch (error) {
     console.error('初始化数据失败:', error)
+    showErrorMessage('初始化数据失败，请刷新页面重试')
   }
 }
 
@@ -552,6 +628,8 @@ onMounted(() => {
                 </div>
               </div>
               <div class="uploadButton">
+                <!-- 经典的自定义文件上传按钮的实现方式 input+button 方案-->
+                 <!-- 优势：样式可控性高、浏览器兼容性好 -->
                 <input 
                   type="file" 
                   @change="handleFileChange" 

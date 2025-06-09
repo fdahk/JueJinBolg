@@ -46,6 +46,8 @@ import { useUserStore } from '@/stores/user';
       // 储存token等信息
       useUserStore().token = res.data.token
       useUserStore().isLogin = true
+      // 重要：保存用户手机号
+      useUserStore().userPhone = phone.value
     }
   }
 

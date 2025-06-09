@@ -25,6 +25,8 @@
       // 这里可以优化下，将store的用户信息写成数组或对象形式，直接解构赋值方便点
       userStore.userName = res.data.userName
       userStore.userPic = res.data.userPic
+      // 重要：保存用户手机号，之前忘记了
+      userStore.userPhone = phone.value
       loginStore.showLogin = false
     } else if(res.data.code === 400) {
       alert('账号或密码错误')

@@ -33,9 +33,9 @@ import user from './router/user.js';
 //   //  调用 next 函数，将错误传递给下一个中间件或路由处理程序
 //   next()
 // })
-// 解析json数据的中间件
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }));
+// 解析json数据的中间件，增加请求体大小限制以支持图片上传
+app.use(express.json({ limit: '10mb' }))  // 增加到10MB以支持Base64图片
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api',search)
 // 使用 .unless({ path: [/^\/api\//] }) 指定哪些接口不需要进行 Token 的身份认证,注意要在login路由之前
 // app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//]}))

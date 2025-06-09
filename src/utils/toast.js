@@ -11,21 +11,14 @@ import { createApp } from 'vue'
 import Toast from '@/components/common/Toast.vue'
 
 /**
- * Toast 通知管理器类
- * 
- * 语法解释：
  * - class 关键字定义类
  * - constructor 构造函数初始化实例
- * - this 关键字引用当前实例
  * - 数组用于存储通知实例列表
- * 
- * 功能解释：
+
  * - 管理所有活跃的通知实例
  * - 限制同时显示的通知数量
  * - 提供统一的通知操作接口
  * 
- * 与其他代码协作：
- * - 实例方法被全局导出的函数调用
  * - 管理 Toast 组件的生命周期
  * - 与 DOM API 配合处理元素操作
  */
@@ -153,4 +146,5 @@ export const showInfo = (message, duration = 1000) => {
   return toast.info(message, duration)
 }
 
+// 导出全局 toast 实例
 export default toast 
