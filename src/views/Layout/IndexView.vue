@@ -16,7 +16,7 @@ import { useLoginStore } from '@/stores/login';
    <div class="seccondViewContainer">
       <RouterView />
    </div>
-  <BottomAdvt />
+  <!-- <BottomAdvt /> -->
 </template>
 
 <style scoped lang="scss">

@@ -15,6 +15,7 @@ app.use(cors())
 // 引入路由
 import search from './router/search.js'
 import login from './router/login.js';
+import user from './router/user.js';
 // 错误级别中间件，接受四个参数在express中视为错误中间件，统一错误响应
 // 不建议有有第一个err参数，因为err会被express识别为错误，会被后续中间件覆盖
 // 三个参数作为普通中间件，每个请求都可用
@@ -39,6 +40,7 @@ app.use('/api',search)
 // 使用 .unless({ path: [/^\/api\//] }) 指定哪些接口不需要进行 Token 的身份认证,注意要在login路由之前
 // app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//]}))
 app.use('/api', login);
+app.use('/user', user);
  // 调用 app.listen 方法，指定端口号并启动web服务器
 app.listen(3007, function () {
   console.log('api server running at http://127.0.0.1:3007')

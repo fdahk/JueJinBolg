@@ -88,6 +88,7 @@ onUnmounted(() => {
     background-color: white;
     width: 100%;
     transition: .3s;
+    z-index: 100;
     &.active {
       transform: translate3d(0, -100%, 0);
     }

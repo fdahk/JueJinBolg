@@ -77,7 +77,7 @@
     // right: 20px;
     margin-left: auto;
     position: relative; // 没加这个，menue会错位
-    z-index: 200000;
+    z-index: 10; // 降低z-index，因为父容器TopNav已经有了高层级
   }
   .userCenter {
     width: 38px;
@@ -104,7 +104,7 @@
     right: 20%;
     border: 1px rgba(76, 74, 74,.2) solid;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 30000;
+    z-index: 20; // 降低z-index，因为父容器TopNav已经有了高层级
     .menueHead {
       width: 100%;
       height: 65px;
