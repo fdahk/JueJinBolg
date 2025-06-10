@@ -9,7 +9,7 @@ const joi = require('@hapi/joi')
  */
 
  // 用户名的验证规则
- const username = joi.string().alphanum().min(1).max(11).required()
+ const userName = joi.string().alphanum().min(1).max(11).required()
  // 密码的验证规则
  const password = joi.string().pattern(/^[\S]{6,12}$/).required()
 
@@ -17,7 +17,7 @@ const joi = require('@hapi/joi')
  exports.regLoginSchema = {
   // 表示需要对 req.body 中的数据进行验证
   body: {
-   username,
+   userName,
    password,
   },
  }

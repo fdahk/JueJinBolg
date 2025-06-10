@@ -2,6 +2,7 @@ import express from "express";
 import db from "../dataBase/index.js";
 const router = express.Router(); 
 
+// 更新用户信息-----------------------------------------------
 router.put('/updateUserInfo', async (req, res) => {
     const { userName, startWorkDate, profession, position, company, website, introduction, userPhone } = req.body;
     
@@ -17,7 +18,7 @@ router.put('/updateUserInfo', async (req, res) => {
 
     
     // 注意逗号，不要漏掉或多
-    const sql = `UPDATE users SET username = ?, startworkdate = ?, profession = ?, position = ?, company = ?, website = ?, introduction = ? WHERE phone = ?`;
+    const sql = `UPDATE users SET userName = ?, startWorkDate = ?, profession = ?, position = ?, company = ?, website = ?, introduction = ? WHERE userPhone = ?`;
     
     try {
         // 避免未定义，使用||
@@ -55,7 +56,7 @@ router.put('/updateUserInfo', async (req, res) => {
 // 更新头像-----------------------------------------------
 router.put('/updateUserPic', async (req, res) => {
     const {userPic, userPhone} = req.body
-    const sql = 'update users set userpic = ? where phone = ?'
+    const sql = 'update users set userPic = ? where userPhone = ?'
     try {
         const [updateRes] = await db.query(sql, [userPic, userPhone])
         if(updateRes.affectedRows > 0) {

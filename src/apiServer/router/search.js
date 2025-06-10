@@ -34,7 +34,7 @@ router.get('/searchContents', async (req, res) => {
 
 
 router.get('/historyList', (req, res) => {
-  const {username} = req.query
+  const {userName} = req.query
   // db.query()
 })
 export default router

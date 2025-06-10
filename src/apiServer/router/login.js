@@ -16,7 +16,7 @@ const router = express.Router();
 //   const {userName, passWord} = req.body 
 //   // 注意捕获异常，避免服务器异常
 //   try {
-//     const sql = "select * from users where username = ? "
+//     const sql = "select * from users where userName = ? "
 //     // 将 Node.js 的回调风格数据库查询（db.query）转换为 Promise 风格，以便使用 async/ 语法
 //     // [checkResults] 使用了解构赋值，因为 db.query 返回的结果是数组，这里取第一个元素（查询结果）
 //     const [queryResults] =  new Promise((resolve, reject) => {
@@ -31,7 +31,7 @@ const router = express.Router();
 //       return res.json({code: 400, message: '用户已存在'})
 //     }
 //     // 用户名未被占用，执行注册操作，将用户名和密码插入数据库
-//     const sql2 = 'insert into users (username, password) value(?,?)'
+//     const sql2 = 'insert into users (userName, password) value(?,?)'
 //     // 对密码进行加密
 //     const hashedPassword =  bcrypt.hash(password, saltRounds);
 //     // 执行插入数据
@@ -55,7 +55,7 @@ const router = express.Router();
 // router.post("/login", (req, res) => {
 //   const {userName, passWord} = req.body
 //   try {
-//     const sql = 'select * from users where username = ?'
+//     const sql = 'select * from users where userName = ?'
 //     const [queryResults] =  new Promise((resolve, reject) => {
 //       db.query(sql, [userName], (err, results) => {
 //         if (err) reject(err)
@@ -84,10 +84,11 @@ const router = express.Router();
 
 // 手机号加密登录接口
 router.post("/passwordLogin", async(req, res) => {
-  const {phone, password} = req.body.params
+  const {userPhone, password} = req.body.params
   try {
-    const sql = 'select * from users where phone =?'
-    const [userRes] = await db.query(sql, [phone])
+    const sql = 'select * from users where userPhone =?'
+    // 查询返回的数据结构 ：[ [{}, {}], [{}, {}] ]
+    const [userRes] = await db.query(sql, [userPhone])
     // console.log(userRes) //调试
     if(userRes.length === 0) {
       return res.json({code: 400, message: '用户不存在'})
@@ -96,10 +97,11 @@ router.post("/passwordLogin", async(req, res) => {
       return res.json({code: 400, message: '密码错误'})
     }
     // 生成token
-    const token = jwt.sign({phone}, config.jwtSecretKey, {expiresIn: '24h'}) // 24小时过期
+    const token = jwt.sign({userPhone}, config.jwtSecretKey, {expiresIn: '24h'}) // 24小时过期
     console.log(userRes) //调试
     // res.json({code: 200, message: '登录成功', token: token, userInfo: userRes[0]})
-    res.json({code: 200, message: '登录成功', token: token, userName: userRes[0].username, userPic: userRes[0].userpic})  
+    // 返回用户信息
+    res.json({code: 200, message: '登录成功', token: token, userInfo: userRes[0]})  
   }catch {
     res.status(500).json({code: 500, message: '服务器错误'})
   }
@@ -110,8 +112,8 @@ router.post("/passwordLogin", async(req, res) => {
 // 1.发送验证码接口
 router.post("/sendCaptcha", async (req, res) => {
   // console.log(req) //调试
-  const {phone} = req.body.params
-  console.log(phone) //调试
+  const {userPhone} = req.body.params
+  console.log(userPhone) //调试
   // 手机号校验
   //。。。。。。。。。。
   try {
@@ -119,12 +121,12 @@ router.post("/sendCaptcha", async (req, res) => {
     // 有效期1分钟
     const expireTime = new Date(Date.now() + 60000)
     // 存储验证码和过期时间
-    const sql = 'insert into captchas (phone, captcha, expireTime) values(?,?,?)'
+    const sql = 'insert into captchas (userPhone, captcha, expireTime) values(?,?,?)'
     // 执行插入数据,注意写法 
-    await db.query(sql, [phone, captcha, expireTime]) 
+    await db.query(sql, [userPhone, captcha, expireTime]) 
     // 一分钟后删除数据
     setTimeout(async () => {
-      await db.query("DELETE FROM captchas WHERE phone=?", [phone]);
+      await db.query("DELETE FROM captchas WHERE userPhone=?", [userPhone]);
     }, 60000)
     // 模拟发送验证码,实际开发中需要调用短信服务
     res.json({code: 200, Message: '验证码发送成功'+`${captcha}`})
@@ -136,34 +138,34 @@ router.post("/sendCaptcha", async (req, res) => {
 
 // 2.验证码登录接口
 router.post("/captchaLogin", async (req, res) => {
-  const {phone, captcha} = req.body.params 
-  // phone = String(phone);
+  const {userPhone, captcha} = req.body.params 
+  // userPhone = String(userPhone);
   // captcha = String(captcha);
-  // console.log(phone, captcha) //调试
+  // console.log(userPhone, captcha) //调试
   // 校验逻辑
   // 。。。。。。。。。。。。。、
   try {
-    const sql = 'select * from tjlogs.captchas where phone =? and captcha =? and expireTime >now()'
+    const sql = 'select * from tjlogs.captchas where userPhone =? and captcha =? and expireTime >now()'
     // 打印预处理后的 SQL（用于调试）,报错了不知道为什么
-    // const debugSql = db.pool.format(sql, [phone, captcha]);
+    // const debugSql = db.pool.format(sql, [userPhone, captcha]);
     // console.log('实际执行的 SQL:', debugSql); //验证实际执行sql调试
     // const R = await db.query('select * from captchas') 
     // console.log(R)
-    const [captchaRes] = await db.query(sql, [phone,captcha]) 
+    const [captchaRes] = await db.query(sql, [userPhone,captcha]) 
     // console.log(captchaRes) //调试
     if(captchaRes.length === 0) {
       return res.json({code: 400, message: '验证码错误或已过期'})
     }
     // 检查是否是新用户
-    const sql2 = 'select * from users where phone =?'
-    const [userRes] = await db.query(sql2, [phone])
+    const sql2 = 'select * from users where userPhone =?'
+    const [userRes] = await db.query(sql2, [userPhone])
     // 生成token
-    const token = jwt.sign({phone}, config.jwtSecretKey, {expiresIn: '4h'}) // 24小时过期
+    const token = jwt.sign({userPhone}, config.jwtSecretKey, {expiresIn: '4h'}) // 24小时过期
     if(userRes.length ===0) {
       // 新用户，自动注册
-      const sql3 = 'insert into users (phone, username) values(?,?)'
+      const sql3 = 'insert into users (userPhone, userName) values(?,?)'
       // 默认用户名是手机号后四位
-      await db.query(sql3, [phone, `user_${phone.slice(-4)}`])
+      await db.query(sql3, [userPhone, `user_${userPhone.slice(-4)}`])
       res.json({code: 200, message: '注册成功', token: token})
     } else {
       res.json({code: 200, message: '登录成功', token: token})

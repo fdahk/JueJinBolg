@@ -9,22 +9,9 @@ import { ref,defineProps,onMounted,onUnmounted } from 'vue'
 import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
 import { useLoginStore } from '@/stores/login'
-// 用户信息
 import { useUserStore } from '@/stores/user'
+import router from '@/router'
 const userStore = useUserStore()
-// 点击效果实现
-const actIndex = ref(0)
-const setActIndex = (index) => {
-  actIndex.value = index
-}
-// vue数据驱动渲染
-const navItems = [
-  { label: '首页', path: '/'},
-  { label: '课程', path: '/course'}
-]
-
-
-
 // 与登录页数据通信
 const handleOpenLogin = () => {
   useLoginStore().openLogin()
@@ -33,8 +20,8 @@ const handleOpenLogin = () => {
 const showHistory = ref(false)
 // 触发changeHistory的同时隐藏创作者中心
 const showCreatorContainer = ref(true)
-const changeHistory = (x) => {
-  showHistory.value = x
+const changeHistory = (value) => {
+  showHistory.value = value
   showCreatorContainer.value = !showHistory.value
 }
 // 滚动隐藏
@@ -54,16 +41,24 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
+// vue数据驱动渲染
+const navItems = [
+  { label: '首页', path: '/'},
+  { label: '课程', path: '/course'}
+]
 </script>
 
 <template>
   <div class="top" :class="{active: showTopNav === false}">
     <div class="nav">
-      <img class="logo" src="@\assets\images\juejin.png" alt="">
+      <RouterLink to="/" class="logoBox">
+        <img class="logo" src="@\assets\images\juejin.png" alt="">
+      </RouterLink>
       <ul>
-        <!-- vue数据驱动渲染 -->
-        <li v-for="(item, index) in navItems" :key=index @click="setActIndex(index)">
-          <RouterLink :to="item.path" :class="{active: index === actIndex}">{{ item.label }}</RouterLink>
+        <!-- 哎，这个样式其实实现的不好-->
+        <li v-for="(item, index) in navItems" :key=index>
+          <!-- 已配置路由精确匹配时自动添加 active 类 -->
+          <RouterLink :to="item.path">{{ item.label }}</RouterLink>
         </li>
       </ul>
       <navSearch :showHistory="showHistory" @changeHistory="changeHistory"/>
@@ -93,10 +88,16 @@ onUnmounted(() => {
       transform: translate3d(0, -100%, 0);
     }
   }
-  .logo {
-    // 完美解决图片超出问题
+  .logoBox {
+    position: relative;
     height: 100%;
+    .logo {
+      // 完美解决图片超出问题
+      height: 100%;
+      margin-right: 10px;
+    }    
   }
+
   .nav {
     display: flex;
     position: relative;
@@ -113,33 +114,39 @@ onUnmounted(() => {
     li {
       position: relative;
       height: 100%;
-      padding-left: 20px;
-      padding-right: 10px;
+      //不能写死宽，内容不确定，a标签的padding会覆盖li的padding
+      // padding: 0 10px 0 10px;
       display: flex;
       align-items: center;
       font-size: .9rem;
+      // 移除 cursor: pointer，因为 a 标签本身就有点击效果
     }
-  }
-  a {
-    position: relative;
-    height: 100%;
-    display: flex;
-    align-items: center;
-  }
-  // 嵌套使用，处于hover状态时，激发after
-  a.active::after,
-  a:hover::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    height: 1px;
-    // 由于 <li> 没有设置 position: relative，那么：
-    // <li> 不会成为 ::after 的定位容器。则width 100%不是依据li的宽度的
-    width: 100%;
-    border-bottom: rgb(74, 138, 210) 2px solid;
-  }
+      a {
+      position: relative;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      // 将 padding 移到 a 标签，让整个 padding 区域都可以点击
+      // padding: 0 10px;
+      margin: 0 10px;
+      // 确保 a 标签占据整个 li 的空间,没有其时也可以
+      // width: 100%;
+    }
+    // 嵌套使用，处于hover状态时，激发after
+    a.active {
+      color: $primaryColor;
+    }
 
-
-  
-  
+    a:hover::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      // 现在 a 标签已经设置了 position: relative，width 100% 会基于 a 标签的宽度
+      width: 100%;
+      border-bottom: $primaryColor 2px solid;
+    } 
+  }
+ 
 </style>

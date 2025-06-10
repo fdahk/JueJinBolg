@@ -1,10 +1,20 @@
-<!DOCTYPE html>
-<html lang="">
-  <head>
+<!-- 单页应用(SPA) 的 HTML 入口文件 -->
+<!-- <meta> 是 HTML 中的元数据标签，用于提供关于网页的描述性信息。
+ 这些信息不会在页面中直接显示，但对浏览器、搜索引擎和其他网络服务非常重要 -->
+ <!-- 后期可以来完善下meta信息，比如keywords、description等 -->
+ <!DOCTYPE html><!--声明这是一个 HTML5 文档告诉浏览器按照 HTML5 标准解析文档 避免浏览器进入"怪异模式" -->
+<html lang=""> <!-- 根元素，语言属性为空，建议改为 lang="zh-CN" 或 lang="en"定义整个文档的语言，有助于搜索引擎和屏幕阅读器 -->
+  <!-- 网页元信息） -->
+  <head> 
+    <!-- 字符编码，万国码，支持全球所有字符 确保中文、emoji 等特殊字符正常显示 -->
     <meta charset="UTF-8">
+    <!-- 设置网页图标  显示位置：浏览器标签、书签、历史记录、收藏夹 -->
     <link rel="icon" href="/favicon.ico">
+    <!-- 设置网页视口，让网页在移动端自适应 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <!-- 设置网页标题 -->
+    <title>盗版掘金博客</title>
+    <!-- 内联样式 -->
     <style></style>
   </head>
   <body>
@@ -16,3 +26,21 @@
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
+
+<!-- 
+HTML 文档结构层级：
+🌐 浏览器视口 (viewport)
+  └── 📄 <html> 根元素
+      └── 📝 <body> 文档主体
+          └── 📦 <div id="app"> Vue应用容器
+
+/* 浏览器默认样式 */
+html {
+  html的特点：
+📐 高度：默认由内容决定，最小等于视口高度
+🎯 定位：是所有绝对定位元素的最终参考点
+  display: block;
+  width: auto;      /* 默认填满视口宽度 */
+  height: auto;     /* 默认根据内容自动调整 */
+}
+ -->

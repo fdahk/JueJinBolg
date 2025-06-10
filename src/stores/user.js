@@ -1,13 +1,15 @@
 import { defineStore } from "pinia";
+import router from '@/router';
 // 已经全局配置了jwt-decode，所以这里不需要再导入
 // import { jwtDecode } from "jwt-decode";
 
 export const useUserStore = defineStore('user', {
+  // 配置项的写法是固定的，不要修改
   state: () => ({
     userName: '', // 用户名
     userPic: '', // 头像
     isLogin: false, // 是否登录
-    token : '',
+    token : '', // 登录token
     startWorkDate: '',  // 开始工作时间，必填字段
     profession: '',     // 职业方向，必填字段
     position: '',      // 职位，可选字段
@@ -40,7 +42,7 @@ export const useUserStore = defineStore('user', {
     },
     updateUserInfo(newUserInfo) {
       this.userName = newUserInfo.userName; // 更新用户名
-      this.userPic = newUserInfo.userPic; // 更新头像
+      // this.userPic = newUserInfo.userPic; // 注意：头像更新在updateUserPic中，这里没有提供数据
       this.password = newUserInfo.password; // 更新密码
       this.startWorkDate = newUserInfo.startWorkDate; // 更新开始工作时间
       this.profession = newUserInfo.profession; // 更新职业方向
@@ -62,6 +64,9 @@ export const useUserStore = defineStore('user', {
       this.website = ''; // 清除个人主页
       this.introduction = ''; // 清除个人介绍
       this.userPhone = ''; // 清除用户手机号
+      
+      // 跳转到首页
+      router.push('/');
     }
   }
 })

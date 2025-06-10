@@ -5,17 +5,34 @@
   margin: 0;
   box-sizing: border-box;
   padding: 0;
-  
 }
+// SPA 单页应用布局方案
+
+// HTML 元素的 width: 100% 和 height: 100% 是相对于初始包含块（Initial Containing Block）计算的。
+// 初始包含块的尺寸 = 视口（viewport）的尺寸
+// 初始包含块是CSS布局系统中的一个虚拟矩形容器，它是所有元素定位和尺寸计算的最终参考基准。
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+// 让页面先全部灰色
+body {
+  background-color: rgb(232, 230, 230);
+  width: 100%;
+  height: 100%;
+  overflow: hidden; //禁用body滚动
+  #app {
+    width: 100%;
+    height: 100%;
+    overflow: auto; //启用app滚动
+  }
+}  
 a {
   text-decoration: none;
   padding: 0;
   color: black;
   font-weight: 400;
-}
-// 让页面先全部灰色
-body {
-  background-color: rgb(232, 230, 230);
 }
 li {
   list-style: none;
@@ -30,12 +47,4 @@ button {
   border: none;
   outline: none;
   cursor: pointer;
-}
-body {
-  width: 100%;
-  height: 100vh;
-  #app {
-    width: 100%;
-    height: 100%;
-  }
 }

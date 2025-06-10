@@ -42,11 +42,12 @@
       margin-left: 0;
     }
     .creatorCenterBox {
-      width:  100%;
+      width:  102px;
       height:  80%;
       background-color: $primaryColor;
       display: flex;
       align-items: center;
+      position: absolute;
       button {
         background-color: $primaryColor;
         border: none;

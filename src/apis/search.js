@@ -1,9 +1,9 @@
 import httpInstance from '@/utils/http'
 
 // 获取历史搜索记录
-export const getHistoryList = ({username}) => {
+export const getHistoryList = ({userName}) => {
   return httpInstance.get('/api/historyList', {
-    params: {username}
+    params: {userName}
   })
 }
 

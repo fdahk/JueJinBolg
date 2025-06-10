@@ -12,21 +12,20 @@
   }
   // 登录
   const password = ref('') 
-  const phone = ref('')
+  const userPhone = ref('')
   const HandlePasswordLogin = async () => {
     // 以下写法会导致index.js:33  Uncaught (in promise) TypeError: Converting circular structure to JSON 报错
-    // const res = await handlePasswordLoginReq({phone, password})
-    const res = await handlePasswordLoginReq({phone:phone.value, password: password.value})
+    // const res = await handlePasswordLoginReq({userPhone, password})
+    const res = await handlePasswordLoginReq({userPhone:userPhone.value, password: password.value})
     console.log(res);// 调试
     // 后端send、statue发送的信息通过res.data.获取
     if(res.data.code === 200) {
       alert('登录成功')
       userStore.isLogin = true 
+      userStore.token = res.data.token
       // 这里可以优化下，将store的用户信息写成数组或对象形式，直接解构赋值方便点
-      userStore.userName = res.data.userName
-      userStore.userPic = res.data.userPic
-      // 重要：保存用户手机号，之前忘记了
-      userStore.userPhone = phone.value
+      // 或者用Object.assign()方法，将res.data.userInfo的属性赋值给userStore，注意键名要一致
+      Object.assign(userStore, res.data.userInfo)
       loginStore.showLogin = false
     } else if(res.data.code === 400) {
       alert('账号或密码错误')
@@ -41,7 +40,7 @@
   <div class="loginBoxBodyLeft">
     <h3 style="color: rgba(0, 0, 0, .8); font-weight: 500; padding-bottom: 10px;">密码登录</h3>
     <div class="inputPhoneBox">
-      <input type="text" placeholder="请输入手机号" class="inputPhone" v-model="phone">
+      <input type="text" placeholder="请输入手机号" class="inputPhone" v-model="userPhone">
     </div>
     <div class="inputChaptchaBox"> 
       <div class="inputChaptchaLeft">

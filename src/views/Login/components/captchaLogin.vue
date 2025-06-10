@@ -8,20 +8,20 @@ import { useUserStore } from '@/stores/user';
     emit('change');
   }
   // 数据 
-  const phone = ref('')
+  const userPhone = ref('')
   const captcha = ref('');       // 验证码
   const countdown = ref(0);      // 倒计时（秒 
   const errorMessage = ref('');  // 错误消息
   // 获取验证码
   const handleGetCaptcha = async () => {
     // 验证手机号格式
-    if (!/^1[3-9]\d{9}$/.test(phone.value)) {
+    if (!/^1[3-9]\d{9}$/.test(userPhone.value)) {
       errorMessage.value = '请输入有效的11位手机号';
       return
     }
     errorMessage.value = '';  // 清空错误消息
     // 调用获取验证码请求
-    await handleGetCaptchaReq({ phone: phone.value });
+    await handleGetCaptchaReq({ userPhone: userPhone.value });
     countdown.value = 60;  // 设置倒计时为60秒
     const timer = setInterval(() => {
       if (countdown.value > 0) {
@@ -34,12 +34,12 @@ import { useUserStore } from '@/stores/user';
   // 登录请求
   const handleLogin = async () => {
     // 验证手机号格式
-    if (!/^1[3-9]\d{9}$/.test(phone.value)) {
+    if (!/^1[3-9]\d{9}$/.test(userPhone.value)) {
       errorMessage.value = '请输入有效的11位手机号';
       return;
     }
     // 调用登录请求，返回token等 
-    const res = await handleCaptchaLoginReq({phone: phone.value, captcha: captcha.value})
+    const res = await handleCaptchaLoginReq({userPhone: userPhone.value, captcha: captcha.value})
     if(res.data.code === 200) {
       console.log("登陆成功")
       useLoginStore().closeLogin()  // 关闭登录页面
@@ -47,7 +47,7 @@ import { useUserStore } from '@/stores/user';
       useUserStore().token = res.data.token
       useUserStore().isLogin = true
       // 重要：保存用户手机号
-      useUserStore().userPhone = phone.value
+      useUserStore().userPhone = userPhone.value
     }
   }
 
@@ -61,7 +61,7 @@ import { useUserStore } from '@/stores/user';
         +86
       </div>
       <div class="inputPhoneRight">
-        <input type="text" placeholder="请输入手机号" class="inputPhone" v-model="phone">
+        <input type="text" placeholder="请输入手机号" class="inputPhone" v-model="userPhone">
       </div>
     </div>
     <div class="inputCaptchaBox"> 

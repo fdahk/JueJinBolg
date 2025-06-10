@@ -249,7 +249,6 @@ const handleFileChange = async (event) => {
       }
       
       // 调用API上传头像
-      console.log('🚀 调用API上传头像...')
       const result = await updateUserPic(base64Data)
       console.log('API响应:', result)
       
@@ -296,7 +295,7 @@ const convertFileToBase64 = (file) => {
   })
 }
 
-// 安全地获取头像URL，避免null/undefined问题
+// 获取头像URL，注意避免null/undefined问题
 const getSafeUserPicUrl = (userPic) => {
   return (userPic && userPic !== 'null' && userPic !== 'undefined' && userPic.trim() !== '') 
     ? userPic 
@@ -319,13 +318,10 @@ const validateForm = () => {
 
 /**
  * 保存个人资料修改
-
  * - 执行完整的表单验证
  * 表单提交按钮的点击事件调用
  * - 调用 validateForm() 进行最终验证
- * - 使用 ProfileUtils.formatProfileData() 格式化数据
- * - 通过 toast 系统显示操作结果
- * - 在控制台记录调试信息
+    格式化数据
  */
 const saveProfile = async () => {
   // 执行完整的表单验证，如果有错误则提前返回
@@ -347,14 +343,14 @@ const saveProfile = async () => {
       userPhone: formData.userPhone
     }
     // console.log(cleanFormData.userPhone) // 测试
-    // 调用API发送更新请求，等待服务器响应
+    // 更新至后端数据库
     const result = await updateUserInfo(cleanFormData)
     
     // 根据API返回结果进行相应处理
     if (result.data && result.data.code === 200) {
       // 保存成功，显示成功消息
       showSuccessMessage(result.data.message || '保存成功')
-      // 使用userStore的updateUserInfo方法更新用户信息
+      // 使用updateUserInfo方法更新用户信息
       userStore.updateUserInfo(cleanFormData)
       console.log('保存成功:', result)  // 控制台记录成功日志
     } else {
@@ -408,6 +404,8 @@ const resetForm = () => {
 const initializeData = async () => {
   try {
     Object.assign(formData, userStore)
+    // console.log(userStore) // 测试
+    // console.log(formData) // 测试
     // 安全地设置头像URL，避免null/undefined被转换为字符串
     userPicUrl.value = getSafeUserPicUrl(userStore.userPic) 
     // console.log(userPicUrl.value) //调试
@@ -657,7 +655,9 @@ onMounted(() => {
 <style scoped lang="scss">
   .profileContainer {
     flex: 1;
-    height: 100%;
+    // height: 100%;
+    display: flex;
+    flex-direction: column;
     margin-left: 20px;
     background-color: white;
     border-radius: 5px;
@@ -666,7 +666,7 @@ onMounted(() => {
   .profileBox {
     display: flex;
     width: 100%;
-    height: 100%;
+    // height: 100%;
     flex-direction: column;
   }
   

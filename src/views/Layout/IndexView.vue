@@ -20,9 +20,11 @@ import { useLoginStore } from '@/stores/login';
 </template>
 
 <style scoped lang="scss">
-.seccondViewContainer  {
-  // width: 100%;
-  height: 100%; //这个100%比实际上要高
+// 这个二级路由的容器，高度有内容撑开，所以不需要设置高度
+// 注意父级项目的html、body、app的布局方案
+.seccondViewContainer {
+  // height: calc(100vh - 88.8px); // 减去顶部导航栏和底部广告栏的高度
+  // height: 100%;
   margin-left: 250px;
   margin-right: 250px;
 }

@@ -74,7 +74,8 @@ const changeHistory = () => {
       // flex: 0 1 100%;
       width: 100%;
       background-color: white;
-      border: 1px solid rgba(119, 118, 118, 0.3);
+      border: 1px solid rgba(125, 121, 121, 0.1);
+      box-shadow: 0 0 10px 0 rgba(125, 121, 121, 0.1);
       border-radius: 4px;
       overflow: hidden;
       //这个过渡实现不了，transition无法捕获到父级的宽度变化，width: 100% 只是被动继承计算结果，本身没有触发数值变化
