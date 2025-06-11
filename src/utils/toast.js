@@ -1,5 +1,4 @@
 /**
- * - 使用 Toast.vue 组件进行渲染
  * - 通过 Vue 的 createApp API 动态创建组件实例
  * - 配合浏览器 DOM API 管理元素生命周期
  * - ES6 class 语法定义类
@@ -17,8 +16,6 @@ import Toast from '@/components/common/Toast.vue'
 
  * - 管理所有活跃的通知实例
  * - 限制同时显示的通知数量
- * - 提供统一的通知操作接口
- * 
  * - 管理 Toast 组件的生命周期
  * - 与 DOM API 配合处理元素操作
  */

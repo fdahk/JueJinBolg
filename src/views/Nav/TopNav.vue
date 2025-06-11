@@ -6,7 +6,6 @@ import userNotice from './components/userNotice.vue'
 import openLogin from './components/openLogin.vue'
 import navSearch from './components/navSearch.vue'
 import { ref,defineProps,onMounted,onUnmounted } from 'vue'
-import TopAdvt from '@/views/Advt/TopAdvt.vue'
 import { getSearchContents, getHistoryList } from '@/apis/search'
 import { useLoginStore } from '@/stores/login'
 import { useUserStore } from '@/stores/user'
@@ -36,9 +35,11 @@ const handleScroll = () => {
   }
 }
 onMounted(() => {
+  // console.log('TopNav component mounted at:', new Date().getTime()); //测试该组件重复渲染问题
   window.addEventListener('scroll', handleScroll)
 })
 onUnmounted(() => {
+  // console.log('TopNav component unmounted.'); // 测试该组件重复渲染问题
   window.removeEventListener('scroll', handleScroll)
 })
 // vue数据驱动渲染

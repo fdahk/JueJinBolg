@@ -7,25 +7,31 @@
   padding: 0;
 }
 // SPA 单页应用布局方案
-
 // HTML 元素的 width: 100% 和 height: 100% 是相对于初始包含块（Initial Containing Block）计算的。
 // 初始包含块的尺寸 = 视口（viewport）的尺寸
 // 初始包含块是CSS布局系统中的一个虚拟矩形容器，它是所有元素定位和尺寸计算的最终参考基准。
+// 标准web滚动方案：
+// window.scrollY 实际上是获取整个文档相对于窗口的偏移量
+// 这个偏移量需要"文档本身可以滚动"才有意义
+// window.scrollY 可以正常获取滚动位置
+// SEO友好，搜索引擎可以正常解析页面高度
+// 浏览器的前进/后退会记住滚动位置
+// 支持键盘导航（空格键、Page Up/Down等
 html {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  // 不使用overflow: hidden;
+  // 改为传统滚动方案，让window.scrollY正常工作
 }
 // 让页面先全部灰色
 body {
   background-color: rgb(232, 230, 230);
   width: 100%;
   height: 100%;
-  overflow: hidden; //禁用body滚动
+  // 使用传统滚动，让TopNav的滚动隐藏功能正常工作
   #app {
     width: 100%;
-    height: 100%;
-    overflow: auto; //启用app滚动
+    min-height: 100%; // 改为min-height，内容可以超出视口高度
   }
 }  
 a {
