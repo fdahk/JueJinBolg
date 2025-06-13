@@ -2,11 +2,12 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { articleApi } from '@/apis/article.js'  // 导入 API
 
 const route = useRoute()
-const articlesList = ref([])
-const isLoading = ref(false)
-const activeTab = ref('recommend') // recommend | latest
+const articlesList = ref([]) // 文章列表
+const isLoading = ref(false) // 加载状态
+const activeTab = ref('recommend') // 推荐 | 最新
 
 // 分类配置映射
 const categoryMap = {
@@ -29,89 +30,6 @@ const getCurrentCategory = computed(() => {
   return categoryMap[currentPath] || categoryMap['comprehensive']
 })
 
-// 模拟数据
-const articleDate = {
-  comprehensive: [
-    {
-      id: 1,
-      title: '前端项目如何接入deepseek',
-      summary: '前端项目接入 DeepSeek 主要有以下步骤3：注册与获取 API Key：访问DeepSeek API 官...',
-      author: 'whisper',
-      viewCount: '2.9k',
-      likeCount: 10,
-      coverImg: '',
-      tagList: ['前端'],
-      publishTime: '2小时前'
-    },
-    {
-      id: 2,
-      title: '外卖平台每天有1000万笔订单查询怎么优化?',
-      summary: '1. 业务场景与挑战 每日订单量1000万级，数据规模呈指数级增长； 年度数据量达36亿条 单...',
-      author: '爱吃饭武当',
-      viewCount: '2.2k',
-      likeCount: 10,
-      coverImg: '',
-      tagList: ['后端'],
-      publishTime: '3小时前'
-    },
-    {
-      id: 3,
-      title: '老板：实现一下王者荣耀里的这个数据雷达图，不要用echarts',
-      summary: '办公室的空调嗡作响，我正目着屏幕敲代码，冷不丁老板拉着平板大步流星走过来，把屏幕...',
-      author: 'JYeontu',
-      viewCount: '528',
-      likeCount: 3,
-      coverImg: '',
-      tagList: ['JavaScript', '前端', 'Canvas'],
-      publishTime: '5小时前'
-    },
-    {
-      id: 4,
-      title: 'DeepSeek为什么现在感觉不火了?',
-      summary: '作为一个在AI圈摸爬滚打多年的技术从业者，看到这个问题，我想从几个维度来聊聊DeepSeek这个现象级产品的起...',
-      author: '王马扎',
-      viewCount: '1.9k',
-      likeCount: 10,
-      coverImg: '',
-      tagList: ['人工智能'],
-      publishTime: '6小时前'
-    },
-    {
-      id: 5,
-      title: '思维导图前端实现',
-      summary: '目的： 值得思维导图的互动操作，让用户更深入地参与到学习内容中。要求：第一个层级的...',
-      author: '用户800052697569',
-      viewCount: '1.1k',
-      likeCount: 12,
-      coverImg: '',
-      tagList: ['前端'],
-      publishTime: '8小时前'
-    },
-    {
-      id: 6,
-      title: '你知道有哪些不常用，但非常有用的css属性吗? 😎😎😎',
-      summary: '以下是 10 个 CSS 不常用但非常有用的属性，它们能解决特定场景下的复杂问题，甚至替代部...',
-      author: 'Felix',
-      viewCount: '2.1k',
-      likeCount: 46,
-      coverImg: '',
-      tagList: ['前端', 'CSS'],
-      publishTime: '10小时前'
-    },
-    {
-      id: 7,
-      title: 'Web Worker：前端也能多线程骄车 🚀',
-      summary: '"为什么我的页面一跑复杂计算就卡成PPT？" 这是很多前端开发者都经历过的灵魂拷问。本文将带你彻底搞懂Web...',
-      author: '酒试人生',
-      viewCount: '2.3k',
-      likeCount: 29,
-      coverImg: '',
-      tagList: ['JavaScript', '前端'],
-      publishTime: '12小时前'
-    }
-  ]
-}
-
 // 切换选项卡
 const handleTabClick = (tabType) => {
   activeTab.value = tabType
@@ -120,29 +38,71 @@ const handleTabClick = (tabType) => {
 
 // 获取文章列表
 const getArticleList = async () => {
-  isLoading.value = true
+  isLoading.value = true // 加载状态
   try {
-    // 模拟接口请求延迟
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
     const categoryPath = route.path.split('/').pop() || 'comprehensive'
     
-    // 这里根据分类和选项卡调用不同接口
-    console.log(`加载 ${categoryPath} 分类的 ${activeTab.value} 文章`)
-    
-    // 模拟数据获取，实际使用时替换为真实接口
-    let dataList = articleDate[categoryPath] || articleDate['comprehensive']
-    
-    // 根据选项卡处理数据
-    if (activeTab.value === 'latest') {
-      dataList = [...dataList].reverse()
+    // 根据选项卡调用不同接口
+    let response
+    if (activeTab.value === 'recommend') {
+      response = await articleApi.getRecommendArticles({
+        category: categoryPath === 'comprehensive' ? '' : categoryPath,
+        limit: 20
+      })
+    } else {
+      response = await articleApi.getLatestArticles({
+        category: categoryPath === 'comprehensive' ? '' : categoryPath,
+        limit: 20
+      })
     }
-    
-    articlesList.value = dataList
+
+    // console.log('response', response) // debug
+    if (response.data.code === 200) {
+      // console.log('API返回的原始数据:', response.data)
+      articlesList.value = response.data.data
+    } else {
+      console.error('获取文章失败:', response.message)
+    }
   } catch (error) {
-    console.error('获取文章失败:', error)
+    console.error('catch获取文章失败:', error)
   } finally {
     isLoading.value = false
+  }
+}
+
+// 格式化时间
+const formatTime = (timeString) => {
+  if (!timeString) return ''
+  
+  try {
+    const time = new Date(timeString)
+    
+    // 检查日期是否有效
+    if (isNaN(time.getTime())) {
+      return timeString // 如果无法解析，返回原始字符串
+    }
+    
+    const now = new Date()
+    const diff = now - time
+    
+    // 确保diff是正数
+    if (diff < 0) {
+      return time.toLocaleDateString('zh-CN')
+    }
+    
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    
+    if (minutes < 1) return '刚刚'
+    if (minutes < 60) return `${minutes}分钟前`
+    if (hours < 24) return `${hours}小时前`
+    if (days < 30) return `${days}天前`
+    
+    return time.toLocaleDateString('zh-CN')
+  } catch (error) {
+    console.error('时间格式化错误:', error, timeString)
+    return timeString
   }
 }
 
@@ -157,6 +117,7 @@ watch(() => route.path, () => {
   getArticleList()
 }, { immediate: true })
 
+// 组件挂载
 onMounted(() => {
   getArticleList()
 })
@@ -262,10 +223,10 @@ onMounted(() => {
     position: relative;
     transition: color 0.3s;
     &:hover {
-      color: #1e80ff;
+      color: $primaryColor;
     }
     &.active {
-      color: #1e80ff;
+      color: $primaryColor;
       font-weight: 600;
       &::after {
         content: '';
@@ -275,7 +236,7 @@ onMounted(() => {
         transform: translateX(-50%);
         width: 20px;
         height: 2px;
-        background-color: #1e80ff;
+        background-color: $primaryColor;
         border-radius: 1px;
       }
     }
@@ -329,7 +290,7 @@ onMounted(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
   &:hover {
-    color: #1e80ff;
+    color: $primaryColor;
   }
 }
 
@@ -384,7 +345,7 @@ onMounted(() => {
     .tagItem {
       padding: 2px 8px;
       background-color: rgba(30, 128, 255, 0.1);
-      color: #1e80ff;
+      color: $primaryColor;
       font-size: 12px;
       border-radius: 4px;
     }

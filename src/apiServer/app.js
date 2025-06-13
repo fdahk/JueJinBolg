@@ -1,13 +1,13 @@
- // 导入 express 模块
+// 导入 express 模块
 //  const express = require('express') // es语法不能这样引入
 import express from 'express'
- // 创建 express 的服务器实例
+// 创建 express 的服务器实例
 const app = express()
 // 导入密钥
 import {config} from './config.js'
 // token解析中间件
 import expressJWT from 'express-jwt'
-  // 导入 cors 中间件
+// 导入 cors 中间件
 import  cors from 'cors'
 // 将 cors 注册为全局中间件
 app.use(cors())
@@ -16,6 +16,7 @@ app.use(cors())
 import search from './router/search.js'
 import login from './router/login.js';
 import user from './router/user.js';
+import article from './router/article.js'  // 新增文章路由
 // 错误级别中间件，接受四个参数在express中视为错误中间件，统一错误响应
 // 不建议有有第一个err参数，因为err会被express识别为错误，会被后续中间件覆盖
 // 三个参数作为普通中间件，每个请求都可用
@@ -27,8 +28,8 @@ import user from './router/user.js';
 //       // 状态描述，判断 err 是 错误对象 还是 字符串
 //       message: err instanceof Error ? err.message : err,
 //     })
-      // 捕获身份认证失败的错误
-      //if (err.name === 'UnauthorizedError') return res.cc('身份认证失败！')
+//       // 捕获身份认证失败的错误
+//       //if (err.name === 'UnauthorizedError') return res.cc('身份认证失败！')
 //   }
 //   //  调用 next 函数，将错误传递给下一个中间件或路由处理程序
 //   next()
@@ -41,7 +42,8 @@ app.use('/api',search)
 // app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//]}))
 app.use('/api', login);
 app.use('/user', user);
- // 调用 app.listen 方法，指定端口号并启动web服务器
+app.use('/api/article', article) 
+// 调用 app.listen 方法，指定端口号并启动web服务器
 app.listen(3007, function () {
   console.log('api server running at http://127.0.0.1:3007')
  })

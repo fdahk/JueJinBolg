@@ -1,7 +1,7 @@
 <script setup>
 import TopNav from '@/views/Nav/TopNav.vue';
 import BottomAdvt from '@/views/Advt/BottomAdvt.vue';
-import loginView from '@/views/Login/indexView.vue';
+import loginView from '@/views/Login/IndexView.vue';
 import TopAdvt from '../Advt/TopAdvt.vue';
 // 登录页状态
 import { useLoginStore } from '@/stores/login';
