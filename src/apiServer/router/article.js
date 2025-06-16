@@ -48,11 +48,20 @@ router.get('/list', async (req, res) => {
       ORDER BY ${sortBy} ${sortOrder}
       LIMIT ? OFFSET ?
     `
-    
+    // 注意：limit和offset的顺序不能颠倒，否则会报错
     params.push(parseInt(limit), parseInt(offset))
     const [articles] = await db.query(sql, params)
     
     // 获取总数
+    // 注意：用as给查询结果取别名
+    // 在JavaScript中，对象属性名包含特殊字符，不能用点号语法访问，例如括号、空格、*等，只能用方括号语法。
+    // 不用as时，数据库返回的原始结果，-- 数据库系统的默认行为：
+    // -- 1. 如果没有别名，就用原始表达式作为列名 -- 2. 保持SQL表达式的原样
+    // const result = [
+    //     {
+    //       "COUNT(*)": 156  // 注意：属性名就是 "COUNT(*)"
+    //     }
+    //   ]
     const countSql = `SELECT COUNT(*) as total FROM articles ${whereClause}`
     const [countResult] = await db.query(countSql, params.slice(0, -2))
     const total = countResult[0].total //.total 是 MySQL 查询结果中的字段名
@@ -80,7 +89,9 @@ router.get('/list', async (req, res) => {
 // 获取推荐文章列表
 router.get('/recommend', async (req, res) => {
   try {
-    const { category = '', limit = 10 } = req.query
+    const { category = '', limit = 10, page = 1 } = req.query
+    
+    const offset = (page - 1) * limit
     
     let whereClause = 'WHERE status = ?'
     const params = ['published']
@@ -107,16 +118,27 @@ router.get('/recommend', async (req, res) => {
       FROM articles 
       ${whereClause}
       ORDER BY (viewCount * 0.7 + likeCount * 0.3) DESC, createTime DESC
-      LIMIT ?
+      LIMIT ? OFFSET ?
     `
     
-    params.push(parseInt(limit))
+    params.push(parseInt(limit), parseInt(offset))
     const [articles] = await db.query(sql, params)
+    
+    // 获取总数
+    const countSql = `SELECT COUNT(*) as total FROM articles ${whereClause}`
+    const [countResult] = await db.query(countSql, params.slice(0, -2))
+    const total = countResult[0].total
     
     res.json({
       code: 200,
       message: '获取成功',
-      data: articles
+      data: {
+        list: articles,
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
     })
   } catch (error) {
     console.error('获取推荐文章失败:', error)
@@ -130,7 +152,9 @@ router.get('/recommend', async (req, res) => {
 // 获取最新文章列表
 router.get('/latest', async (req, res) => {
   try {
-    const { category = '', limit = 10 } = req.query
+    const { category = '', limit = 10, page = 1 } = req.query
+    
+    const offset = (page - 1) * limit
     
     let whereClause = 'WHERE status = ?'
     const params = ['published']
@@ -156,16 +180,27 @@ router.get('/latest', async (req, res) => {
       FROM articles 
       ${whereClause}
       ORDER BY createTime DESC
-      LIMIT ?
+      LIMIT ? OFFSET ?
     `
     
-    params.push(parseInt(limit))
+    params.push(parseInt(limit), parseInt(offset))
     const [articles] = await db.query(sql, params)
+    
+    // 获取总数
+    const countSql = `SELECT COUNT(*) as total FROM articles ${whereClause}`
+    const [countResult] = await db.query(countSql, params.slice(0, -2))
+    const total = countResult[0].total
     
     res.json({
       code: 200,
       message: '获取成功',
-      data: articles
+      data: {
+        list: articles,
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
     })
   } catch (error) {
     console.error('获取最新文章失败:', error)
