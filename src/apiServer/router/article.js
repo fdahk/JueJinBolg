@@ -3,7 +3,7 @@ import db from '../dataBase/index.js'
 
 const router = express.Router()
 
-// 文章获取接口----------------------------------------
+// 文章获取接口--------------------------------------------------------
 // 获取文章列表
 router.get('/list', async (req, res) => {
   try {
@@ -212,7 +212,7 @@ router.get('/latest', async (req, res) => {
 })
 
 // 获取文章详情
-router.get('/detail/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
     
@@ -254,7 +254,7 @@ router.get('/detail/:id', async (req, res) => {
   }
 })
 
-// 文章操作接口----------------------------------------
+// 文章作者操作接口--------------------------------------------------------
 // 创建文章
 router.post('/create', async (req, res) => {
   try {
@@ -429,6 +429,277 @@ router.delete('/delete/:id', async (req, res) => {
     })
   } catch (error) {
     console.error('删除文章失败:', error)
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+})
+
+// 文章详情页交互功能接口-------------------------------------------------------------
+// 点赞/取消点赞
+router.post('/:id/like', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { action } = req.body // 'like' 或 'unlike'
+    const userId = req.user?.id || 'anonymous' // 假设从认证中间件获取用户ID
+
+    // 检查文章是否存在
+    const [articles] = await db.query(
+      'SELECT articleId, likeCount FROM articles WHERE articleId = ?',
+      [id]
+    )
+
+    if (articles.length === 0) {
+      return res.json({
+        code: 404,
+        message: '文章不存在'
+      })
+    }
+
+    if (action === 'like') {
+      // 检查是否已经点赞
+      const [existingLike] = await db.query(
+        'SELECT * FROM article_likes WHERE articleId = ? AND userId = ?',
+        [id, userId]
+      )
+
+      if (existingLike.length > 0) {
+        return res.json({
+          code: 400,
+          message: '已经点过赞了'
+        })
+      }
+
+      // 添加点赞记录
+      await db.query(
+        'INSERT INTO article_likes (articleId, userId, createTime) VALUES (?, ?, NOW())',
+        [id, userId]
+      )
+
+      // 更新文章点赞数
+      await db.query(
+        'UPDATE articles SET likeCount = likeCount + 1 WHERE articleId = ?',
+        [id]
+      )
+
+      res.json({
+        code: 200,
+        message: '点赞成功',
+        data: {
+          likeCount: articles[0].likeCount + 1,
+          isLiked: true
+        }
+      })
+    } else if (action === 'unlike') {
+      // 删除点赞记录
+      const [result] = await db.query(
+        'DELETE FROM article_likes WHERE articleId = ? AND userId = ?',
+        [id, userId]
+      )
+
+      if (result.affectedRows > 0) {
+        // 更新文章点赞数
+        await db.query(
+          'UPDATE articles SET likeCount = GREATEST(likeCount - 1, 0) WHERE articleId = ?',
+          [id]
+        )
+
+        res.json({
+          code: 200,
+          message: '取消点赞成功',
+          data: {
+            likeCount: Math.max(articles[0].likeCount - 1, 0),
+            isLiked: false
+          }
+        })
+      } else {
+        res.json({
+          code: 400,
+          message: '还没有点过赞'
+        })
+      }
+    }
+  } catch (error) {
+    console.error('点赞操作失败:', error)
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+})
+
+// 收藏/取消收藏
+router.post('/:id/favorite', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { action } = req.body // 'favorite' 或 'unfavorite'
+    const userId = req.user?.id || 'anonymous'
+
+    // 检查文章是否存在
+    const [articles] = await db.query(
+      'SELECT articleId FROM articles WHERE articleId = ?',
+      [id]
+    )
+
+    if (articles.length === 0) {
+      return res.json({
+        code: 404,
+        message: '文章不存在'
+      })
+    }
+
+    if (action === 'favorite') {
+      // 检查是否已经收藏
+      const [existingFavorite] = await db.query(
+        'SELECT * FROM article_favorites WHERE articleId = ? AND userId = ?',
+        [id, userId]
+      )
+
+      if (existingFavorite.length > 0) {
+        return res.json({
+          code: 400,
+          message: '已经收藏了'
+        })
+      }
+
+      // 添加收藏记录
+      await db.query(
+        'INSERT INTO article_favorites (articleId, userId, createTime) VALUES (?, ?, NOW())',
+        [id, userId]
+      )
+
+      res.json({
+        code: 200,
+        message: '收藏成功',
+        data: { isFavorited: true }
+      })
+    } else if (action === 'unfavorite') {
+      // 删除收藏记录
+      const [result] = await db.query(
+        'DELETE FROM article_favorites WHERE articleId = ? AND userId = ?',
+        [id, userId]
+      )
+
+      if (result.affectedRows > 0) {
+        res.json({
+          code: 200,
+          message: '取消收藏成功',
+          data: { isFavorited: false }
+        })
+      } else {
+        res.json({
+          code: 400,
+          message: '还没有收藏过'
+        })
+      }
+    }
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+})
+
+// 获取文章交互状态
+router.get('/:id/interaction', async (req, res) => {
+  try {
+    const { id } = req.params
+    const userId = req.user?.id || 'anonymous'
+
+    // 检查点赞状态
+    const [likeResult] = await db.query(
+      'SELECT COUNT(*) as isLiked FROM article_likes WHERE articleId = ? AND userId = ?',
+      [id, userId]
+    )
+
+    // 检查收藏状态  
+    const [favoriteResult] = await db.query(
+      'SELECT COUNT(*) as isFavorited FROM article_favorites WHERE articleId = ? AND userId = ?',
+      [id, userId]
+    )
+
+    // 获取统计数据
+    const [statsResult] = await db.query(
+      'SELECT likeCount, commentCount, viewCount FROM articles WHERE articleId = ?',
+      [id]
+    )
+
+    res.json({
+      code: 200,
+      message: '获取成功',
+      data: {
+        isLiked: likeResult[0].isLiked > 0,
+        isFavorited: favoriteResult[0].isFavorited > 0,
+        likeCount: statsResult[0]?.likeCount || 0,
+        commentCount: statsResult[0]?.commentCount || 0,
+        viewCount: statsResult[0]?.viewCount || 0
+      }
+    })
+  } catch (error) {
+    console.error('获取交互状态失败:', error)
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+})
+
+// 举报文章
+router.post('/:id/report', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { reason } = req.body
+    const userId = req.user?.id || 'anonymous'
+
+    // 验证举报原因
+    if (!reason || reason.trim().length < 5) {
+      return res.json({
+        code: 400,
+        message: '举报原因至少需要5个字符'
+      })
+    }
+
+    // 检查文章是否存在
+    const [articles] = await db.query(
+      'SELECT articleId FROM articles WHERE articleId = ?',
+      [id]
+    )
+
+    if (articles.length === 0) {
+      return res.json({
+        code: 404,
+        message: '文章不存在'
+      })
+    }
+
+    // 检查是否已经举报过
+    const [existingReport] = await db.query(
+      'SELECT * FROM article_reports WHERE articleId = ? AND userId = ?',
+      [id, userId]
+    )
+
+    if (existingReport.length > 0) {
+      return res.json({
+        code: 400,
+        message: '您已经举报过这篇文章了'
+      })
+    }
+
+    // 添加举报记录
+    await db.query(
+      'INSERT INTO article_reports (articleId, userId, reason, createTime) VALUES (?, ?, ?, NOW())',
+      [id, userId, reason.trim()]
+    )
+
+    res.json({
+      code: 200,
+      message: '举报成功，我们会尽快处理'
+    })
+  } catch (error) {
+    console.error('举报失败:', error)
     res.status(500).json({
       code: 500,
       message: '服务器错误'

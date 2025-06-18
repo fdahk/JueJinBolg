@@ -36,7 +36,7 @@ export const articleApi = {
   // 获取文章详情
   getArticleDetail(id) {
     return httpInstance({
-      url: `/api/article/detail/${id}`,
+      url: `/api/article/${id}`,
       method: 'GET'
     })
   },
@@ -67,6 +67,60 @@ export const articleApi = {
       method: 'DELETE'
     })
   },
+
+  // 文章详情页交互功能----------------------------------------
+  // 点赞/取消点赞
+  toggleLike(articleId, action = 'like') {
+    return httpInstance({
+      url: `/api/article/${articleId}/like`,
+      method: 'POST',
+      data: { action }
+    })
+  },
+
+  // 收藏/取消收藏
+  toggleFavorite(articleId, action = 'favorite') {
+    return httpInstance({
+      url: `/api/article/${articleId}/favorite`,
+      method: 'POST',
+      data: { action }
+    })
+  },
+
+  // 获取文章交互状态（点赞、收藏状态）
+  getArticleInteraction(articleId) {
+    return httpInstance({
+      url: `/api/article/${articleId}/interaction`,
+      method: 'GET'
+    })
+  },
+
+  // 举报文章
+  reportArticle(articleId, reason) {
+    return httpInstance({
+      url: `/api/article/${articleId}/report`,
+      method: 'POST',
+      data: { reason }
+    })
+  },
+
+  // 获取文章评论
+  getComments(articleId, params = {}) {
+    return httpInstance({
+      url: `/api/article/${articleId}/comments`,
+      method: 'GET',
+      params
+    })
+  },
+
+  // 添加评论
+  addComment(articleId, data) {
+    return httpInstance({
+      url: `/api/article/${articleId}/comments`,
+      method: 'POST',
+      data
+    })
+  }
 }
 
 // 导出默认对象

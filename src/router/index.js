@@ -7,6 +7,7 @@ import profileSetting from '@/views/Setting/components/profileSetting.vue'
 import accountSetting from '@/views/Setting/components/accountSetting.vue'
 // 首页文章组件
 import homeArticle from '@/views/Home/components/HomeArticle.vue'
+import ArticleDetail from '@/views/Article/IndexView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -106,6 +107,13 @@ const router = createRouter({
             }
 
           ]
+        },
+        // 文章详情页路由
+        {
+          path: '/api/article/:id',
+          name: 'ArticleDetail',
+          component: ArticleDetail,
+          props: true // 将路由参数作为props传递给组件
         }
       ]
     },

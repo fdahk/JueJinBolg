@@ -13,6 +13,8 @@ import '@/styles/Common.scss'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // 引入阿里字体图标样式，比elementPlus好用
 import '@/assets/iconFonts/iconfont.css'
+// 引入 Markdown 配置（执行配置
+import '@/utils/markdown.js'
 
 // 创建一个 Vue 应用实例，App 是根组件（通常是 App.vue）
 // createApp 函数用于创建一个新的 Vue 应用实例，它接收一个根组件作为参数

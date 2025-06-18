@@ -1,11 +1,12 @@
 <!-- 文章列表组件 - 根据路由参数获取不同分类的文章数据 -->
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { articleApi } from '@/apis/article.js'  // 导入 API
 import { valid } from '@hapi/joi'
 
 const route = useRoute()
+const router = useRouter()
 const articlesList = ref([]) // 文章列表
 const isLoading = ref(false) // 首次加载状态
 const isLoadingMore = ref(false) // 加载更多状态
@@ -173,46 +174,11 @@ const handleRefresh = () => {
   getArticleList(true)
 }
 
-// 格式化时间
-const formatTime = (timeString) => {
-  if (!timeString) return ''
-  
-  try {
-    const time = new Date(timeString)
-    
-    // 检查日期是否有效
-    if (isNaN(time.getTime())) {
-      return timeString // 如果无法解析，返回原始字符串
-    }
-    
-    const now = new Date()
-    const diff = now - time
-    
-    // 确保diff是正数
-    if (diff < 0) {
-      return time.toLocaleDateString('zh-CN')
-    }
-    
-    const minutes = Math.floor(diff / (1000 * 60))
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    
-    if (minutes < 1) return '刚刚'
-    if (minutes < 60) return `${minutes}分钟前`
-    if (hours < 24) return `${hours}小时前`
-    if (days < 30) return `${days}天前`
-    
-    return time.toLocaleDateString('zh-CN')
-  } catch (error) {
-    console.error('时间格式化错误:', error, timeString)
-    return timeString
-  }
-}
 
 // 点击文章
 const handleArticleClick = (article) => {
   console.log('点击文章:', article.title)
-  // 这里可以跳转到文章详情页
+  console.log('article', article.id)
 }
 
 // 监听路由变化
@@ -221,7 +187,7 @@ watch(() => route.path, () => {
   getArticleList(true)
 }, { immediate: false })
 
-// 监听选项卡变化
+// 监听选项卡变化，第一个参数必须是函数形式，原理是需要函数来动态获取值，而非=传入的静态值
 watch(() => activeTab.value, () => {
   resetPagination()
   getArticleList(true)
@@ -279,54 +245,59 @@ onUnmounted(() => {
 
     <!-- 文章列表 -->
     <div v-else class="articleListBox">
-      <div 
-        class="articleItemBox" 
+      <RouterLink 
         v-for="(article, index) in articlesList" 
-        :key="`${article.id}-${index}`"
-        @click="handleArticleClick(article)"
+        :key="`${article.articleId}`"
+        :to="`/api/article/${article.articleId}`" 
+        target="_blank"
+        class="articleItemBox"
       >
-        <div class="articleContentBox">
-          <h3 class="articleTitle">{{ article.title }}</h3>
-          <p class="articleSummary">{{ article.summary }}</p>
-          
-          <div class="articleMetaBox">
-            <span class="authorName">{{ article.author }}</span>
-            <span class="statsItem">
-              <i class="iconfont icon-eye"></i>
-              {{ article.viewCount }}
-            </span>
-            <span class="statsItem">
-              <i class="iconfont icon-thumb-up"></i>
-              {{ article.likeCount }}
-            </span>
-            <span class="moreBtn">
-              <i class="iconfont icon-more"></i>
-            </span>
-          </div>
-
-          <div class="articleFooterBox">
-            <div class="tagListBox">
-              <span 
-                v-for="tag in article.tagList" 
-                :key="tag" 
-                class="tagItem"
-              >
-                {{ tag }}
+        <div 
+          class="articleItemBox" 
+          @click="handleArticleClick(article)"
+        >
+          <div class="articleContentBox">
+            <h3 class="articleTitle">{{ article.title }}</h3>
+            <p class="articleSummary">{{ article.summary }}</p>
+            
+            <div class="articleMetaBox">
+              <span class="authorName">{{ article.author }}</span>
+              <span class="statsItem">
+                <i class="iconfont icon-eye"></i>
+                {{ article.viewCount }}
+              </span>
+              <span class="statsItem">
+                <i class="iconfont icon-thumb-up"></i>
+                {{ article.likeCount }}
+              </span>
+              <span class="moreBtn">
+                <i class="iconfont icon-more"></i>
               </span>
             </div>
-            <span class="publishTime">{{ article.publishTime }}</span>
+
+            <div class="articleFooterBox">
+              <div class="tagListBox">
+                <span 
+                  v-for="tag in article.tagList" 
+                  :key="tag" 
+                  class="tagItem"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+              <span class="publishTime">{{ article.publishTime }}</span>
+            </div>
+          </div>
+
+          <div class="articleCoverBox" v-if="article.coverImg">
+            <img 
+              :src="article.coverImg" 
+              :alt="article.title"
+              loading="lazy"
+            />
           </div>
         </div>
-
-        <div class="articleCoverBox" v-if="article.coverImg">
-          <img 
-            :src="article.coverImg" 
-            :alt="article.title"
-            loading="lazy"
-          />
-        </div>
-      </div>
-
+      </RouterLink>
       <!-- 加载更多状态 -->
       <div class="loadMoreBox">
         <!-- 正在加载更多 -->
