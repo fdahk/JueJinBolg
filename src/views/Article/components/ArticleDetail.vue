@@ -90,11 +90,11 @@ onMounted(getArticleContentDetail)
 
 <style lang="scss" scoped>
 .article-content-container {
-  min-width: 800px;
-  width: 60%;
+  width: 100%;
   padding: 20px;
   background: #fff;
   min-height: 100vh;
+  border-radius: 10px;
 }
 
 .article-content-loading {

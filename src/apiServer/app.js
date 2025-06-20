@@ -16,7 +16,8 @@ app.use(cors())
 import search from './router/search.js'
 import login from './router/login.js';
 import user from './router/user.js';
-import article from './router/article.js'  // 新增文章路由
+import article from './router/article.js'  // 文章路由
+import userArticle from './router/userArticle.js'  // 用户文章路由
 // 错误级别中间件，接受四个参数在express中视为错误中间件，统一错误响应
 // 不建议有有第一个err参数，因为err会被express识别为错误，会被后续中间件覆盖
 // 三个参数作为普通中间件，每个请求都可用
@@ -43,6 +44,7 @@ app.use('/api',search)
 app.use('/api', login);
 app.use('/user', user);
 app.use('/api/article', article) 
+app.use('/api/userArticle', userArticle)
 // 调用 app.listen 方法，指定端口号并启动web服务器
 app.listen(3007, function () {
   console.log('api server running at http://127.0.0.1:3007')

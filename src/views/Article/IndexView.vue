@@ -1,7 +1,8 @@
 <script setup>
- import ArticleDetail from './components/articleDetail.vue'
+ import ArticleDetail from './components/ArticleDetail.vue'
  import ArticleAuthor from './components/ArticleAuthor.vue'
  import ArticleInteract from './components/ArticleInteract.vue'
+ import ArticleComment from './components/ArticleComment.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { showToast } from '@/utils/toast.js'
@@ -15,8 +16,11 @@ const route = useRoute()
     <div class="secondViewBox">
         <ArticleInteract />
 
-        <ArticleDetail />
-        
+        <div class="secondViewBoxBody">
+            <ArticleDetail />
+            <ArticleComment :articleId="route.params.id" />            
+        </div>
+
         <div class="secondViewBoxRightContainer">
             <ArticleAuthor />
         </div>
@@ -30,7 +34,11 @@ const route = useRoute()
     display: flex;
     justify-content: space-between;
 }
-
+.secondViewBoxBody {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}
 .secondViewBoxRightContainer {
     flex: 1;
     height: 50vh;

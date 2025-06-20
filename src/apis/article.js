@@ -68,11 +68,12 @@ export const articleApi = {
     })
   },
 
-  // 文章详情页交互功能----------------------------------------
+  // 新增的交互功能接口----------------------------------------
+  
   // 点赞/取消点赞
   toggleLike(articleId, action = 'like') {
     return httpInstance({
-      url: `/api/article/${articleId}/like`,
+      url: `/api/userArticle/${articleId}/like`,
       method: 'POST',
       data: { action }
     })
@@ -81,7 +82,7 @@ export const articleApi = {
   // 收藏/取消收藏
   toggleFavorite(articleId, action = 'favorite') {
     return httpInstance({
-      url: `/api/article/${articleId}/favorite`,
+      url: `/api/userArticle/${articleId}/favorite`,
       method: 'POST',
       data: { action }
     })
@@ -90,7 +91,7 @@ export const articleApi = {
   // 获取文章交互状态（点赞、收藏状态）
   getArticleInteraction(articleId) {
     return httpInstance({
-      url: `/api/article/${articleId}/interaction`,
+      url: `/api/userArticle/${articleId}/interaction`,
       method: 'GET'
     })
   },
@@ -98,7 +99,7 @@ export const articleApi = {
   // 举报文章
   reportArticle(articleId, reason) {
     return httpInstance({
-      url: `/api/article/${articleId}/report`,
+      url: `/api/userArticle/${articleId}/report`,
       method: 'POST',
       data: { reason }
     })
@@ -107,7 +108,7 @@ export const articleApi = {
   // 获取文章评论
   getComments(articleId, params = {}) {
     return httpInstance({
-      url: `/api/article/${articleId}/comments`,
+      url: `/api/userArticle/${articleId}/comments`,
       method: 'GET',
       params
     })
@@ -116,7 +117,7 @@ export const articleApi = {
   // 添加评论
   addComment(articleId, data) {
     return httpInstance({
-      url: `/api/article/${articleId}/comments`,
+      url: `/api/userArticle/${articleId}/comments`,
       method: 'POST',
       data
     })

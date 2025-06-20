@@ -1,9 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { showToast } from '@/utils/toast.js'
+import { articleApi } from '@/apis/article.js'
+import { userArticleApi } from '@/apis/userArticle.js'
+import { useUserStore } from '@/stores/user.js'
 
 const route = useRoute()
+const userStore = useUserStore()
+
 // 文章ID
 const articleId = ref(null)
 
@@ -15,6 +19,7 @@ const iconList = ref([
         action: 'like',
         count: 0,
         isActive: false,
+        activeColor: '#1e80ff'
     },
     {
         icon: 'icon-message-fill',
@@ -22,6 +27,7 @@ const iconList = ref([
         action: 'comment',
         count: 0,
         isActive: false,
+        activeColor: '#1e80ff'
     },
     {
         icon: 'icon-star-fill',
@@ -29,6 +35,7 @@ const iconList = ref([
         action: 'favorite',
         count: 0,
         isActive: false,
+        activeColor: '#1e80ff'
     },
     {
         icon: 'icon-file-copy-fill',
@@ -36,6 +43,7 @@ const iconList = ref([
         action: 'copy',
         count: 0,
         isActive: false,
+        activeColor: '#1e80ff'
     },
     {
         icon: 'icon-error',
@@ -43,6 +51,7 @@ const iconList = ref([
         action: 'report',
         count: 0,
         isActive: false,
+        activeColor: '#1e80ff'
     },
     {
         icon: 'icon-link',
@@ -50,13 +59,20 @@ const iconList = ref([
         action: 'share',
         count: 0,
         isActive: false,
+        activeColor: '#1e80ff'
     }
 ])
+
+// 获取用户信息
+const getUserPhone = () => {
+    // console.log(userStore.userPhone)
+    return userStore?.userPhone || 'test_user'
+}
 
 // 按钮点击处理函数
 const handleIconClick = async (item) => {
     if (!articleId.value) {
-        showToast('文章信息获取中，请稍后再试', 'warning')
+        console.log('文章信息获取中，请稍后再试')
         return
     }
 
@@ -84,26 +100,26 @@ const handleIconClick = async (item) => {
     }
 }
 
-// 点赞功能
+// 点赞功能 - 传递用户信息
 const handleLike = async (item) => {
     try {
-        // 模拟API调用
-        const response = await simulateApiCall('/api/article/like', {
-            articleId: articleId.value,
-            action: item.isActive ? 'unlike' : 'like'
-        })
+        const userPhone = getUserPhone()
+        const response = await userArticleApi.toggleLike(
+            articleId.value,
+            item.isActive ? 'unlike' : 'like',
+            userPhone
+        )
 
-        if (response.success) {
+        if (response.data.code === 200) {
             item.isActive = !item.isActive
-            item.count += item.isActive ? 1 : -1
+            item.count = response.data.data.likeCount
             
-            showToast(
-                item.isActive ? '点赞成功！' : '取消点赞',
-                'success'
-            )
+            console.log(item.isActive ? '点赞成功！' : '取消点赞')
+        } else {
+            console.log(response.data.message || '操作失败')
         }
     } catch (error) {
-        showToast('操作失败，请重试', 'error')
+        console.log('网络错误，请重试')
         console.error('点赞失败:', error)
     }
 }
@@ -118,30 +134,29 @@ const handleComment = (item) => {
             block: 'start'
         })
     } else {
-        // 如果没有评论区域，显示提示
-        showToast('评论功能开发中...', 'info')
+        console.log('评论功能开发中...')
     }
 }
 
-// 收藏功能
+// 收藏功能 - 传递用户信息
 const handleFavorite = async (item) => {
     try {
-        const response = await simulateApiCall('/api/article/favorite', {
-            articleId: articleId.value,
-            action: item.isActive ? 'unfavorite' : 'favorite'
-        })
+        const userPhone = getUserPhone()
+        const response = await userArticleApi.toggleFavorite(
+            articleId.value,
+            item.isActive ? 'unfavorite' : 'favorite',
+            userPhone
+        )
 
-        if (response.success) {
+        if (response.data.code === 200) {
             item.isActive = !item.isActive
-            item.count += item.isActive ? 1 : -1
-            
-            showToast(
-                item.isActive ? '收藏成功！' : '取消收藏',
-                'success'
-            )
+            item.count = response.data.data.collectCount
+            console.log(item.isActive ? '收藏成功！' : '取消收藏')
+        } else {
+            console.log(response.data.message || '操作失败')
         }
     } catch (error) {
-        showToast('操作失败，请重试', 'error')
+        console.log('网络错误，请重试')
         console.error('收藏失败:', error)
     }
 }
@@ -157,7 +172,7 @@ const handleCopy = async (item) => {
             item.isActive = false
         }, 2000)
         
-        showToast('链接已复制到剪贴板', 'success')
+        console.log('链接已复制到剪贴板')
     } catch (error) {
         // 兼容不支持 clipboard API 的浏览器
         const textArea = document.createElement('textarea')
@@ -167,9 +182,9 @@ const handleCopy = async (item) => {
         
         try {
             document.execCommand('copy')
-            showToast('链接已复制到剪贴板', 'success')
+            console.log('链接已复制到剪贴板')
         } catch (err) {
-            showToast('复制失败，请手动复制', 'error')
+            console.log('复制失败，请手动复制')
         }
         
         document.body.removeChild(textArea)
@@ -181,7 +196,7 @@ const handleReport = (item) => {
     const reason = prompt('请输入举报原因:')
     if (reason && reason.trim()) {
         // 这里可以调用举报API
-        showToast('举报已提交，我们会尽快处理', 'success')
+        console.log('举报已提交，我们会尽快处理')
         console.log('举报原因:', reason)
     }
 }
@@ -194,36 +209,45 @@ const handleShare = (item) => {
             title: document.title,
             url: window.location.href
         }).then(() => {
-            showToast('分享成功', 'success')
+            console.log('分享成功')
         }).catch(err => {
             console.log('分享取消或失败:', err)
         })
     } else {
         // 不支持的浏览器，显示分享选项
-        showToast('请复制链接进行分享', 'info')
+        console.log('请复制链接进行分享')
         handleCopy(iconList.value.find(icon => icon.action === 'copy'))
     }
 }
 
-// 模拟API调用
-const simulateApiCall = (url, data) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({ success: true, data })
-        }, 500)
-    })
+// 加载用户交互状态 - 传递用户信息
+const loadUserInteractions = async () => {
+    try {
+        const userPhone = getUserPhone()
+        const response = await userArticleApi.getInteraction(articleId.value, userPhone)
+        
+        if (response.data.code === 200) {
+            const data = response.data.data
+            // console.log('data', data) // 测试
+            // 更新按钮状态
+            iconList.value[0].isActive = data.isLike      // 点赞状态
+            iconList.value[0].count = data.likeCount       // 点赞数量
+            iconList.value[1].count = data.commentCount    // 评论数量
+            iconList.value[2].isActive = data.isCollect  // 收藏状态
+            iconList.value[2].count = data.collectCount  // 收藏数量
+        }
+    } catch (error) {
+        console.error('加载交互状态失败:', error)
+    }
 }
 
 // 初始化数据
-const initializeData = () => {
+const initializeData = async () => {
     // 从路由参数获取文章ID
     articleId.value = route.params.id
     
-    // 模拟获取文章的点赞、收藏等数据
-    // 这里应该调用真实的API来获取数据
-    iconList.value[0].count = 128  // 点赞数
-    iconList.value[1].count = 45   // 评论数
-    iconList.value[2].count = 89   // 收藏数
+    // 加载用户交互状态
+    await loadUserInteractions()
 }
 
 onMounted(() => {
@@ -238,9 +262,9 @@ onMounted(() => {
         :key="item.icon" 
         class="iconItemBox"
         :class="{ active: item.isActive }"
-        :style="{ color: item.isActive ? '#1e80ff' : '' }"
+        :style="{ color: item.isActive ? item.activeColor : '' }"
         @click="handleIconClick(item)"
-        :title="item.label"
+        :title="item.label" 
     >
         <i class="iconfont" :class="item.icon"></i>
         <div v-if="item.count > 0" class="count" :class="{ active: item.isActive }">{{ item.count }}</div>
@@ -285,7 +309,7 @@ onMounted(() => {
         &.active {
             color: #1e80ff;
             background: linear-gradient(145deg, #ffffff, #f8f8f8);
-            border: 1px solid #1e80ff;
+            // border: 1px solid #1e80ff;
             
             .iconfont {
                 // 动画效果
