@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineEmits, defineProps } from 'vue'
 import { useRoute } from 'vue-router'
 import { articleApi } from '@/apis/article.js'
 import { userArticleApi } from '@/apis/userArticle.js'
@@ -7,7 +7,17 @@ import { useUserStore } from '@/stores/user.js'
 
 const route = useRoute()
 const userStore = useUserStore()
-
+const emits = defineEmits(['inputComment'])
+const props = defineProps({
+    showSideComment: {
+        type: Boolean,
+        default: false
+    }
+})
+// 侧边评论区 
+const inputComment = () => {
+    emits('inputComment', !props.showSideComment) 
+}
 // 文章ID
 const articleId = ref(null)
 
@@ -124,18 +134,9 @@ const handleLike = async (item) => {
     }
 }
 
-// 评论功能
+// 侧边评论功能
 const handleComment = (item) => {
-    // 滚动到评论区域
-    const commentSection = document.querySelector('.comment-section')
-    if (commentSection) {
-        commentSection.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-        })
-    } else {
-        console.log('评论功能开发中...')
-    }
+    inputComment()
 }
 
 // 收藏功能 - 传递用户信息

@@ -7,204 +7,55 @@ import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
 
-// 接收父组件传递的文章ID
+// 父组件传递文章ID
 const props = defineProps({
   articleId: {
     type: [String, Number],
     required: true
+  },
+  articleInfo: {
+    type: Object,
+    required: true
   }
 })
 
-// 评论区数据
-const commentData = reactive({
+// 最热评论区数据
+const hotCommentData = reactive({
   list: [
-    {
-      id: 1,
-      user: {
-        id: 101,
-        nickname: "前端小王子",
-        userPic: "https://picsum.photos/40/40?random=1",
-        level: 3,
-        isAuthor: false
-      },
-      content: "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111这篇文章写得真的很好！特别是关于Vue3响应式原理的解释，让我终于理解了ref和reactive的区别。作者的代码示例也很清晰，赞！👍",
-      createTime: "2024-01-15 14:30:25",
-      likeCount: 23,
-      replyCount: 5,
-      isLiked: false,
-      level: 1, // 一级评论
-      parentId: null,
-      replies: [
-        {
-          id: 11,
-          user: {
-            id: 102,
-            nickname: "Vue开发者",
-            userPic: "https://picsum.photos/40/40?random=2",
-            level: 5,
-            isAuthor: true // 文章作者
-          },
-          content: "@前端小王子 谢谢认可！确实这两个API在实际开发中容易混淆，我后续会写更多关于Vue3的实战文章。",
-          createTime: "2024-01-15 15:12:10",
-          likeCount: 8,
-          replyCount: 0,
-          isLiked: true,
-          level: 2, // 二级回复
-          parentId: 1,
-          replyTo: {
-            id: 101,
-            nickname: "前端小王子"
-          }
-        },
-        {
-          id: 12,
-          user: {
-            id: 103,
-            nickname: "代码新手",
-            userPic: "https://picsum.photos/40/40?random=3",
-            level: 1,
-            isAuthor: false
-          },
-          content: "同感！我刚学Vue3的时候也被这个坑了很久，现在总算明白了。",
-          createTime: "2024-01-15 16:45:33",
-          likeCount: 2,
-          replyCount: 0,
-          isLiked: false,
-          level: 2,
-          parentId: 1
-        }
-      ]
-    },
-    {
-      id: 2,
-      user: {
-        id: 104,
-        nickname: "全栈工程师",
-        userPic: "https://picsum.photos/40/40?random=4",
-        level: 7,
-        isAuthor: false
-      },
-      content: "建议可以补充一下在TypeScript中如何更好地使用这些响应式API，类型推断有时候会有问题。另外，性能优化方面也可以深入讲讲。",
-      createTime: "2024-01-15 13:22:18",
-      likeCount: 15,
-      replyCount: 2,
-      isLiked: true,
-      level: 1,
-      parentId: null,
-      replies: [
-        {
-          id: 21,
-          user: {
-            id: 102,
-            nickname: "Vue开发者",
-            userPic: "https://picsum.photos/40/40?random=2",
-            level: 5,
-            isAuthor: true
-          },
-          content: "@全栈工程师 好建议！TypeScript的类型推断确实是个值得深入的话题，我会考虑单独写一篇文章来详细介绍。",
-          createTime: "2024-01-15 17:30:45",
-          likeCount: 6,
-          replyCount: 0,
-          isLiked: false,
-          level: 2,
-          parentId: 2,
-          replyTo: {
-            id: 104,
-            nickname: "全栈工程师"
-          }
-        }
-      ]
-    },
-    {
-      id: 3,
-      user: {
-        id: 105,
-        nickname: "React转Vue的人",
-        userPic: "https://picsum.photos/40/40?random=5",
-        level: 4,
-        isAuthor: false
-      },
-      content: "从React hooks转到Vue3的组合式API，感觉还是有不少相似之处的。不过Vue的响应式系统确实更加直观一些。",
-      createTime: "2024-01-15 11:55:12",
-      likeCount: 9,
-      replyCount: 0,
-      isLiked: false,
-      level: 1,
-      parentId: null,
-      replies: []
-    },
-    {
-      id: 4,
-      user: {
-        id: 106,
-        nickname: "移动端开发",
-        userPic: "https://picsum.photos/40/40?random=6",
-        level: 2,
-        isAuthor: false
-      },
-      content: "请问在移动端项目中使用这些API有什么需要特别注意的吗？性能方面会不会有影响？",
-      createTime: "2024-01-15 10:30:50",
-      likeCount: 4,
-      replyCount: 1,
-      isLiked: false,
-      level: 1,
-      parentId: null,
-      replies: [
-        {
-          id: 41,
-          user: {
-            id: 107,
-            nickname: "性能优化专家",
-            userPic: "https://picsum.photos/40/40?random=7",
-            level: 6,
-            isAuthor: false
-          },
-          content: "移动端主要注意避免不必要的深度响应式，可以使用shallowRef和shallowReactive来优化性能。",
-          createTime: "2024-01-15 12:15:28",
-          likeCount: 7,
-          replyCount: 0,
-          isLiked: true,
-          level: 2,
-          parentId: 4,
-          replyTo: {
-            id: 106,
-            nickname: "移动端开发"
-          }
-        }
-      ]
-    },
-    {
-      id: 5,
-      user: {
-        id: 108,
-        nickname: "学生党",
-        userPic: "https://picsum.photos/40/40?random=8",
-        level: 1,
-        isAuthor: false
-      },
-      content: "正在准备校招，这篇文章对我帮助很大！请问有推荐的Vue3练手项目吗？",
-      createTime: "2024-01-15 09:45:15",
-      likeCount: 12,
-      replyCount: 0,
-      isLiked: false,
-      level: 1,
-      parentId: null,
-      replies: []
-    }
+
   ],
-  total: 5,  // 一级评论总数
+  total: 0,  // 一级评论总数
   loading: false,
-  hasMore: true
+  hasMore: true,
+  page: 1,
+  limit: 5,
 })
 
-// 评论内容参数
+// 最新评论数据
+const newestCommentData = reactive({
+  list: [],
+  total: 0,
+  loading: false,
+  hasMore: true,
+  page: 1,
+  limit: 5,
+})
+
+// 当前类别评论数据，watch 或 computed 实现和 sortType 关联
+// 计算属性只读，不能修改
+// 执行时机： 1.初次访问 2.依赖的响应式数据变化 并且再次访问时
+const nowCommentData = computed(() => {
+  return sortType.value === 'hot' ? hotCommentData : newestCommentData
+})
+
+// 评论内容公共参数
 const commentForm = reactive({
   content: '',
   maxLength: 1000
 })
 
 
-// 排序
+// 排序类别
 const sortType = ref('hot') // 'hot' | 'newest'
 
 
@@ -214,7 +65,29 @@ const wordCount = computed(() => {
 })
 
 // 获取评论列表
-const getComments = async (reset = false) => {
+const getComments = async (reset = false, sortType) => {
+    // 分类
+    const sort = sortType === 'hot' ? 'likeCount' : 'createTime'
+    try {
+        nowCommentData.value.loading = true
+        const res = await userArticleApi.getComments(props.articleId, {
+            // nowCommentData是计算属性，需要用value获取
+            page:  nowCommentData.value.page,
+            limit: nowCommentData.value.limit,
+            sort: sort
+        })
+        if (res.data.code === 200) {
+            nowCommentData.value.list.push(...res.data.list)
+            nowCommentData.value.total = res.data.total
+            nowCommentData.value.hasMore = res.data.hasMore
+            nowCommentData.value.page += 1
+        }        
+    } catch(error) {
+        console.error('获取评论失败:', error)
+    } finally {
+        nowCommentData.value.loading = false // 最后记得标记状态
+    }
+
 }
 
 // 发送评论
@@ -226,13 +99,18 @@ const submitComment = async () => {
 const changeSort = (type) => {
   if (sortType.value === type) return
   sortType.value = type
-  getComments(true)
+  if (type === 'hot' && hotCommentData.list.length === 0) {
+    getComments(true, 'hot')
+
+  } else if (type === 'newest' && newestCommentData.list.length === 0) {
+    getComments(true, 'newest')
+  }
 }
 
 // 加载更多评论
 const loadMore = () => {
-  if (!commentData.hasMore || commentData.loading) return
-  getComments(false)
+  if (!nowCommentData.value.hasMore || nowCommentData.value.loading) return
+  getComments(false, sortType.value)
 }
 
 // 格式化时间
@@ -241,7 +119,7 @@ const formatTime = (time) => {
 
 // 组件挂载时获取评论
 onMounted(() => {
-  getComments(true)
+  getComments(true, 'hot')
 })
 </script>
 
@@ -250,7 +128,7 @@ onMounted(() => {
     <div class="article-comment-box">
         <!-- 评论标题 -->
         <div class="comment-header">
-        <h3 class="comment-title">评论 {{ commentData.total }}</h3>
+        <h3 class="comment-title">评论 {{ nowCommentData.total }}</h3>
         </div>
 
         <!-- 评论输入 -->
@@ -313,18 +191,18 @@ onMounted(() => {
         <div class="comment-list-container">
             <!-- 评论列表 -->
             <div 
-                v-for="comment in commentData.list" 
-                :key="comment.id"
+                v-for="comment in nowCommentData.list" 
+                :key="comment.commentId"
                 class="comment-item"
             >
                 <div class="comment-pic">
-                    <img :src="comment.user?.userPic || '/default-pic.png'" :alt="comment.user?.nickname" />
+                    <img :src="comment.userPic || '/default-pic.png'" />
                 </div>
                 <div class="comment-content-container">
                     <!-- 用户信息 -->
                     <div class="comment-user">
-                        <span class="username">{{ comment.user?.nickname }}</span>
-                        <span v-if="comment.user?.isAuthor" class="user-title">作者</span>
+                        <span class="username">{{ comment.userName }}</span>
+                        <span v-if="comment.userPhone == articleInfo.userPhone" class="user-title">作者</span>
                     </div>
                     <!-- 评论内容 -->
                     <div class="comment-text">{{ comment.content }}</div>
@@ -344,25 +222,23 @@ onMounted(() => {
                         <button class="action-btn reply-btn">
                             <span class="icon"><i class="iconfont icon-message-fill"></i></span>
                         </button>
-                        <!-- 更多 -->
-                        <button class="action-btn more-btn">⋯</button>
                     </div>
                 </div>
             </div>
 
             <!-- 加载更多 -->
-            <div v-if="commentData.hasMore" class="load-more">
+            <div v-if="nowCommentData.hasMore" class="load-more">
                 <button 
                 class="load-more-btn"
-                :disabled="commentData.loading"
+                :disabled="nowCommentData.loading"
                 @click="loadMore"
                 >
-                {{ commentData.loading ? '加载中...' : `查看全部 ${commentData.total} 条评论` }}
+                {{ nowCommentData.loading ? '加载中...' : `加载更多评论` }}
                 </button>
             </div>
 
             <!-- 无评论 -->
-            <div v-if="commentData.list.length === 0 && !commentData.loading" class="no-comments">
+            <div v-if="nowCommentData.list.length === 0 && !nowCommentData.loading" class="no-comments">
                 <p>暂无评论，快来发表第一条评论吧~</p>
             </div>
         </div>

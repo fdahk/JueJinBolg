@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted,defineEmits } from 'vue'
 import { useRoute } from 'vue-router'
 import { articleApi } from '@/apis/article'
 import { formatTime } from '@/utils/formatTime'
@@ -8,7 +8,7 @@ import { renderMarkdown } from '@/utils/markdown' // 引入 Markdown 渲染函�
 const route = useRoute()
 const articleContent = ref(null)
 const articleContentLoading = ref(true)
-
+const emits = defineEmits(['shareArticleInfo'])
 // 渲染 Markdown 内容
 const articleContentRendered = computed(() => {
   if (!articleContent.value?.content) return ''
@@ -19,11 +19,12 @@ const articleContentRendered = computed(() => {
 const getArticleContentDetail = async () => {
   try {
     articleContentLoading.value = true
-    console.log('route.params.id', route.params.id)
+    // console.log('route.params.id', route.params.id) 获取文章ID
     const { data } = await articleApi.getArticleDetail(route.params.id)
     articleContent.value = data.data
-    console.log('articleContent.value', articleContent.value)
-    document.title = `${articleContent.value.title} - TJLogs`
+    // console.log('articleContent.value', articleContent.value) 获取文章详情
+    document.title = `${articleContent.value.title}`
+    emits('shareArticleInfo', articleContent.value) // 分享文章信息
   } catch (error) {
     console.error('获取文章失败:', error)
   } finally {

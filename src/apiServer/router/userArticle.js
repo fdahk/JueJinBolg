@@ -524,4 +524,36 @@ try {
 }
 })
 
+// 获取文章评论
+router.get('/:id/comments', async (req, res) => {
+  const {id} = req.params 
+  // 不是req.query.params
+  const {page, limit,sort} = req.query
+  // console.log('page', page)
+  // console.log('limit', limit)
+  // console.log('sort', sort)
+  const offset = (page - 1) * limit 
+  const sql = `SELECT * FROM comments WHERE articleId = ? ORDER BY ${sort} LIMIT ${offset}, ${limit}`
+  // COUNT(*) 是SQL中的一个聚合函数
+  const sqlCount = `SELECT COUNT(*) AS total FROM comments WHERE articleId = ?`
+  try {
+    // id不存在导致报错了
+    const [comments] = await db.query(sql, [id])
+    const [total] = await db.query(sqlCount, [id])
+    res.json({
+      code: 200,
+      message: '获取评论成功',
+      list: comments,
+      total: total[0].total,
+      hasMore: comments.length == limit // 注意这里不能用===， int 与 string进行比较
+    })
+  } catch (error) {
+    console.error('获取评论失败:', error)
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+
+})
 export default router
