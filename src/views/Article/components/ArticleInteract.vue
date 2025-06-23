@@ -47,14 +47,14 @@ const iconList = ref([
         isActive: false,
         activeColor: '#1e80ff'
     },
-    {
-        icon: 'icon-file-copy-fill',
-        label: '复制',
-        action: 'copy',
-        count: 0,
-        isActive: false,
-        activeColor: '#1e80ff'
-    },
+    // {
+    //     icon: 'icon-file-copy-fill',
+    //     label: '复制',
+    //     action: 'copy',
+    //     count: 0,
+    //     isActive: false,
+    //     activeColor: '#1e80ff'
+    // },
     {
         icon: 'icon-error',
         label: '举报',
@@ -139,7 +139,7 @@ const handleComment = (item) => {
     inputComment()
 }
 
-// 收藏功能 - 传递用户信息
+// 收藏功能 
 const handleFavorite = async (item) => {
     try {
         const userPhone = getUserPhone()
@@ -162,47 +162,16 @@ const handleFavorite = async (item) => {
     }
 }
 
-// 复制功能
-const handleCopy = async (item) => {
-    try {
-        const url = window.location.href
-        await navigator.clipboard.writeText(url)
-        
-        item.isActive = true
-        setTimeout(() => {
-            item.isActive = false
-        }, 2000)
-        
-        console.log('链接已复制到剪贴板')
-    } catch (error) {
-        // 兼容不支持 clipboard API 的浏览器
-        const textArea = document.createElement('textarea')
-        textArea.value = window.location.href
-        document.body.appendChild(textArea)
-        textArea.select()
-        
-        try {
-            document.execCommand('copy')
-            console.log('链接已复制到剪贴板')
-        } catch (err) {
-            console.log('复制失败，请手动复制')
-        }
-        
-        document.body.removeChild(textArea)
-    }
-}
 
-// 举报功能
+// 举报功能 -- 没写
 const handleReport = (item) => {
-    const reason = prompt('请输入举报原因:')
+    const reason = prompt('请输入举报原因:') // JS内置浏览器API，显示一个包含输入框的对话框，获取用户输入。
     if (reason && reason.trim()) {
-        // 这里可以调用举报API
-        console.log('举报已提交，我们会尽快处理')
-        console.log('举报原因:', reason)
+        // API 举报
     }
 }
 
-// 分享功能
+// 分享功能 -- 不完善
 const handleShare = (item) => {
     if (navigator.share) {
         // 支持 Web Share API 的浏览器
@@ -215,13 +184,12 @@ const handleShare = (item) => {
             console.log('分享取消或失败:', err)
         })
     } else {
-        // 不支持的浏览器，显示分享选项
-        console.log('请复制链接进行分享')
-        handleCopy(iconList.value.find(icon => icon.action === 'copy'))
+        // 不支持的浏览器
+        console.log('分享失败')
     }
 }
 
-// 加载用户交互状态 - 传递用户信息
+// 加载用户交互状态 
 const loadUserInteractions = async () => {
     try {
         const userPhone = getUserPhone()

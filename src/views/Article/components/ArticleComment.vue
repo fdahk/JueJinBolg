@@ -1,10 +1,11 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch, nextTick, onUnmounted } from 'vue'
 import { showSuccess, showError } from '@/utils/toast'
 import { userArticleApi } from '@/apis/userArticle'
 import { articleApi } from '@/apis/article'
 import { useUserStore } from '@/stores/user'
-
+import { formatRelativeTime } from '@/utils/formatTime'
+import InputComment from './InputComment.vue'
 const userStore = useUserStore()
 
 // 父组件传递文章ID
@@ -21,14 +22,12 @@ const props = defineProps({
 
 // 最热评论区数据
 const hotCommentData = reactive({
-  list: [
-
-  ],
+  list: [],
   total: 0,  // 一级评论总数
   loading: false,
   hasMore: true,
   page: 1,
-  limit: 5,
+  limit: 5
 })
 
 // 最新评论数据
@@ -41,6 +40,7 @@ const newestCommentData = reactive({
   limit: 5,
 })
 
+
 // 当前类别评论数据，watch 或 computed 实现和 sortType 关联
 // 计算属性只读，不能修改
 // 执行时机： 1.初次访问 2.依赖的响应式数据变化 并且再次访问时
@@ -48,21 +48,16 @@ const nowCommentData = computed(() => {
   return sortType.value === 'hot' ? hotCommentData : newestCommentData
 })
 
-// 评论内容公共参数
-const commentForm = reactive({
-  content: '',
-  maxLength: 1000
-})
-
+// 通过子组件更新评论
+const updateComment = (comment) => {
+    hotCommentData.list.unshift(comment)
+    newestCommentData.list.unshift(comment)
+    hotCommentData.total += 1
+    newestCommentData.total += 1
+}
 
 // 排序类别
 const sortType = ref('hot') // 'hot' | 'newest'
-
-
-// 字数统计
-const wordCount = computed(() => {
-  return commentForm.content.length
-})
 
 // 获取评论列表
 const getComments = async (reset = false, sortType) => {
@@ -71,7 +66,7 @@ const getComments = async (reset = false, sortType) => {
     try {
         nowCommentData.value.loading = true
         const res = await userArticleApi.getComments(props.articleId, {
-            // nowCommentData是计算属性，需要用value获取
+            // 需要用value获取
             page:  nowCommentData.value.page,
             limit: nowCommentData.value.limit,
             sort: sort
@@ -87,11 +82,6 @@ const getComments = async (reset = false, sortType) => {
     } finally {
         nowCommentData.value.loading = false // 最后记得标记状态
     }
-
-}
-
-// 发送评论
-const submitComment = async () => {
 
 }
 
@@ -113,13 +103,101 @@ const loadMore = () => {
   getComments(false, sortType.value)
 }
 
-// 格式化时间
-const formatTime = (time) => {
+
+//评论交互功能
+
+// 点赞
+const handleCommentLike = async (comment) => {
+  try {
+    const res = await userArticleApi.toggleCommentLike(props.articleId, comment.commentId, comment.isLiked ? 'unlike' : 'like', userStore.userPhone)
+    if (res.data.code === 200) {
+      comment.isLiked = !comment.isLiked
+      comment.likeCount += comment.isLiked ? 1 : -1
+    }
+  } catch (error) {
+    console.error('点赞失败:', error)
+  }
+}
+
+// 回复评论
+const showReplyContainer = ref(null)
+const replyRefs = ref({}) // 存储多个 ref
+// 打开时默认聚焦
+// 动态 ref 设置
+const setReplyRef = (el, commentId) => {
+  if (el) {
+    replyRefs.value[commentId] = el 
+  } else {
+    //delete 删除对象的属性
+    delete replyRefs.value[commentId]
+  }
+}
+
+// 监听回复框状态变化
+watch(showReplyContainer, async (newVal) => {
+  if (newVal) {
+    //Vue提供的API，在下次DOM更新循环结束之后执行延迟回调，Vue的响应式更新是异步的
+    // 等待 DOM 更新完成
+    await nextTick()
+    // 获取对应评论的组件实例
+    const targetComponent = replyRefs.value[newVal]
+    if (targetComponent && targetComponent.focus) {
+      targetComponent.focus()
+    }
+  }
+})
+
+// 点击外部关闭回复框的处理函数
+const handleClickOutside = (event) => {
+  if (!showReplyContainer.value) return
+  
+  const replyComponent = replyRefs.value[showReplyContainer.value]
+  if (replyComponent) {
+    // 获取组件的DOM元素
+    const replyElement = replyComponent.$el
+    if (replyElement && !replyElement.contains(event.target)) {
+      // 检查是否有内容，如果没有内容才关闭
+      if (!replyComponent.commentForm.content.trim()) {
+        showReplyContainer.value = null
+      }
+    }
+  }
+}
+
+
+// 发送回复评论
+const handleCommentReply = async (comment) => {
+  try {
+    const res = await userArticleApi.replyComment(props.articleId, comment.commentId, {
+      content: commentForm.content,
+      userPhone: userStore.userPhone,
+      userName: userStore.userName,
+      userPic: userStore.userPic,
+      parentId: comment.commentId,
+      level: 2
+    })
+    if (res.data.code === 200) {
+      showSuccess('回复成功')
+      commentForm.content = ''
+      setTimeout(() => {
+        resizeTextarea(document.querySelector('.input-content-textarea'))
+      }, 0)
+      comment.replyCount += 1
+    }
+  } catch (error) {
+    console.error('回复失败:', error)
+  }
 }
 
 // 组件挂载时获取评论
 onMounted(() => {
   getComments(true, 'hot')
+  document.addEventListener('click', handleClickOutside)
+})
+
+// 组件卸载时移除事件监听
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -133,40 +211,11 @@ onMounted(() => {
 
         <!-- 评论输入 -->
         <div class="comment-input-container">
-        <div class="comment-input-box">
             <!-- 用户头像 -->
             <div class="user-pic">
                 <img :src="userStore.userPic || '' " :alt="userStore.userName" />
             </div>
-            <!-- 评论输入框 -->
-            <div class="input-content-container" >
-                <!-- 评论输入 -->
-                <textarea
-                    v-model="commentForm.content"
-                    :maxlength="commentForm.maxLength"
-                    placeholder="平等表达，友善交流"
-                    class="input-content-textarea"
-                    rows="3"
-                ></textarea>
-                <!-- 评论输入框底部 -->
-                <div class="input-footer">
-                    <div class="other-btn">
-                    <button class="emoji-btn" title="表情"><i class="iconfont icon-smile-fill"></i></button>
-                    <button class="image-btn" title="图片"><i class="iconfont icon-image-fill"></i></button>
-                    </div>
-                    <div class="send-comment-container">
-                    <span class="word-count">{{ wordCount }} / {{ commentForm.maxLength }}</span>
-                    <button 
-                        class="send-comment"
-                        :disabled="!commentForm.content.trim()"
-                        @click="submitComment"
-                    >
-                        发送
-                    </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <InputComment :articleId="articleId" @updateComment="updateComment" />
         </div>
 
         <!-- tab切换排序 -->
@@ -193,37 +242,63 @@ onMounted(() => {
             <div 
                 v-for="comment in nowCommentData.list" 
                 :key="comment.commentId"
-                class="comment-item"
+                class="comment-item-container"
             >
-                <div class="comment-pic">
-                    <img :src="comment.userPic || '/default-pic.png'" />
-                </div>
-                <div class="comment-content-container">
-                    <!-- 用户信息 -->
-                    <div class="comment-user">
-                        <span class="username">{{ comment.userName }}</span>
-                        <span v-if="comment.userPhone == articleInfo.userPhone" class="user-title">作者</span>
-                    </div>
+                <div class="comment-item-box">
+                    <!-- 评论头像 -->
+                     <div class="comment-item-box-left">
+                        <div class="comment-pic">
+                            <img :src="comment.userPic" />
+                        </div>                        
+                     </div>
                     <!-- 评论内容 -->
-                    <div class="comment-text">{{ comment.content }}</div>
-                    <!-- 评论交互按钮 -->
-                    <div class="comment-actions">
-                        <!-- 时间 -->
-                        <span class="comment-time">{{ comment.createTime }}</span>
-                        <!-- 点赞 -->
-                        <button 
-                            class="action-btn like-btn"
-                            :class="{ liked: comment.isLiked }"
-                        >
-                            <span class="icon"><i class="iconfont icon-like-fill"></i></span>
-                            <span v-if="comment.likeCount > 0" class="count">{{ comment.likeCount }}</span>
-                        </button>
-                        <!-- 回复 -->
-                        <button class="action-btn reply-btn">
-                            <span class="icon"><i class="iconfont icon-message-fill"></i></span>
-                        </button>
-                    </div>
+                     <div class="comment-item-box-right">
+                        <div class="comment-content-container">
+                            <!-- 用户信息 -->
+                            <div class="comment-user">
+                                <span class="username">{{ comment.userName }}</span>
+                                <span v-if="comment.userPhone == articleInfo.userPhone" class="user-title">作者</span>
+                            </div>
+                            <!-- 评论内容 -->
+                            <div class="comment-text">{{ comment.content || "渲染异常" }}</div>
+                            <!-- 评论交互按钮 -->
+                            <div class="comment-actions">
+                                <!-- 时间 -->
+                                <span class="comment-time">{{ formatRelativeTime(comment.createTime) }}</span>
+                                <!-- 点赞 -->
+                                <button 
+                                    class="action-btn like-btn"
+                                    :class="{ liked: comment.isLiked }"
+                                    @click="handleCommentLike(comment)"
+                                >
+                                    <span class="icon"><i class="iconfont icon-like-fill"></i></span>
+                                    <span v-if="comment.likeCount > 0" class="count">{{ comment.likeCount }}</span>
+                                    <span v-else>点赞</span>
+                                </button>
+                                <!-- 回复 -->
+                                <button 
+                                    class="action-btn reply-btn" 
+                                    @click.stop="showReplyContainer = showReplyContainer === comment.commentId ? null : comment.commentId"
+                                >
+                                    <span class="icon"><i class="iconfont icon-message-fill"></i></span>
+                                    <span v-if="comment.replyCount > 0" class="count">{{ comment.replyCount }}</span>
+                                    <span v-else>回复</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 回复框 -->
+                        <div class="reply-container" v-if="showReplyContainer === comment.commentId">
+                            <InputComment 
+                                :key="comment.commentId"
+                                :ref="el => setReplyRef(el, comment.commentId)"
+                                :articleId="articleId" 
+                                @updateComment="updateComment" 
+                            />
+                        </div>                           
+                     </div>
+
                 </div>
+             
             </div>
 
             <!-- 加载更多 -->
@@ -267,33 +342,10 @@ onMounted(() => {
     }
 }
 
-// 字体图标
-.iconfont {
-    font-size: 1.3rem;
-    color: rgba(128, 128, 128, 0.7);
-    &:hover {
-        color: $primaryColor;
-    }
-}
-
-// 评论输入容器
-.comment-input-container {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 24px;
-    padding: 16px;
-    background: white;
-    .comment-input-box {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-}
-
 // 用户头像
 .user-pic {
     flex-shrink: 0;
-
+    margin-right: 12px;
     img {
     width: 40px;
     height: 40px;
@@ -302,93 +354,14 @@ onMounted(() => {
     }  
 }
 
-// 评论输入框
-.input-content-container {
-    flex: 1;
-    background-color: rgba(240, 237, 237, 0.5);
-    border: solid 1px rgba(240, 237, 237, 0.5);
-    border-radius: 6px;    
-    &:focus-within {
-        border-color: $primaryColor;
-        background-color: white;
-    }      
-    // 评论输入
-    .input-content-textarea {
-        width: 100%;
-        height: 80px;
-        padding: 12px;
-        background-color: transparent;        
-        resize: none; // 大小不可调整
-        border: none;
-        font-size: .9rem;
-        font-weight: 400;
-        line-height: 1.4;
-        outline: none; // 去除默认的聚焦边框
-        transition:  .4s;
-        &:focus {
-            height: 150px;
-        }
-    }
-    
-    // 评论输入框底部
-    .input-footer {
-        display: flex;
-        background-color: transparent;
-        justify-content: space-between;
-        align-items: center;
-        // padding-top: 8px;
-        // 输入框底部按钮
-        .other-btn {
-            display: flex;
-            gap: 8px;
-            .emoji-btn, .image-btn {
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-            }
-
-            .emoji-btn:hover, .image-btn:hover {
-            background-color: #f0f0f0;
-            }    
-        }    
-    }
-    // 发送评论
-    .send-comment-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        .word-count {
-        font-size: 12px;
-        color: #8a919f;
-        }
-
-        .send-comment {
-            background: $primaryColor;
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        // 悬停时且非禁用
-        .send-comment:hover:not(:disabled) {
-            filter: brightness(.9);
-        }
-
-        .send-comment:disabled {
-            background: #c9cdd4;
-            cursor: not-allowed;
-        }        
-    }
+// 评论输入容器
+.comment-input-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: white;
 }
-
-
 
 // tab切换排序
 .comment-sort-container {
@@ -408,32 +381,48 @@ onMounted(() => {
   padding: 8px 0;
   position: relative;
   transition: color 0.2s;
+
+    .sort-btn.active {
+    color: #007fff;
+    font-weight: 600;
+    }  
+
+    .sort-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #007fff;
+    }    
 }
 
-.sort-btn.active {
-  color: #007fff;
-  font-weight: 600;
-}
-
-.sort-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -13px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #007fff;
-}
 
 // 评论区容器
 .comment-list-container {
     margin-top: 20px;
     // 评论实例
-    .comment-item {
+    .comment-item-container {
         display: flex;
+        flex-direction: column;
         gap: 12px;
         padding: 16px 0;
         border-bottom: 1px solid #f1f2f3;
+        .comment-item-box {
+            display: flex;
+            gap: 12px;
+            padding: 16px 0;
+            // border-bottom: 1px solid #f1f2f3;
+            .comment-item-box-left {
+                display: flex;
+            }
+            .comment-item-box-right {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+        }
         // 评论头像
         .comment-pic {
             flex-shrink: 0;
@@ -563,7 +552,7 @@ onMounted(() => {
         }
     }   
     // 最后一项的样式    
-    .comment-item:last-child {
+    .comment-item-container:last-child {
         border-bottom: none;
     }
 }
@@ -607,6 +596,23 @@ onMounted(() => {
     }  
 }
 
+// 回复框
+.reply-container {
+    
+    // 大小不要变化，否则会闪烁
+    // 方案一 ：无效，min属性会被原来激活状态的min覆盖
+    // :deep(.input-content-textarea) {
+    //     height: 80px;
+    //     min-height: 80px;
+    //     max-height: 80px;
+    // }
+    // 方案二 ：使用CSS变量
+    --min-height: 80px;
+    --max-height: 80px;
+    :deep(.input-content-textarea) {
+        height: 80px;
+    }
+}
 
 // 响应式设计
 

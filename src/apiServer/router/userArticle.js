@@ -556,4 +556,85 @@ router.get('/:id/comments', async (req, res) => {
   }
 
 })
+
+// 发送评论
+router.post('/:id/comments', async (req, res) => {
+  try {
+    const {id} = req.params
+    const {content, userPhone, userName, userPic, parentId, level} = req.body
+    const sql = `INSERT INTO comments (articleId, content, userPhone, userName, userPic, parentId, level, createTime) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`
+    const [result] = await db.query(sql, [id, content, userPhone, userName, userPic, parentId, level])
+    const userComment = await db.query('SELECT * FROM comments WHERE commentId = ?',[result.insertId])
+    res.json({
+      code: 200,
+      message: '发送评论成功',
+      userComment: userComment[0]
+    })    
+  } catch (error) {
+    console.error('发送评论失败:', error)
+
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+})
+
+// 评论交互功能 
+// 点赞
+router.post('/:id/comments/:commentId/like', async (req, res) => {
+  try {
+    const {id, commentId} = req.params
+    const {action, userPhone} = req.body
+      // 更新评论点赞数
+      const sql = `UPDATE comments SET likeCount = likeCount + 1 WHERE commentId = ?`
+      const [result] = await db.query(sql, [commentId])
+      // 更新用户交互状态
+      // 检查用户是否已有交互记录
+      const [existingRecord] = await db.query('SELECT * FROM usercomments WHERE commentId = ? AND userPhone = ?',[commentId, userPhone])
+      // 已有交互记录
+      if (existingRecord.length > 0) {
+        if (action === 'like') {
+          // 点赞
+          const sql2 = `UPDATE usercomments SET isLike = ? WHERE commentId = ? AND userPhone = ?`
+          const [result2] = await db.query(sql2, ['1', commentId, userPhone])
+        } else if (action === 'unlike') {
+          // 取消点赞
+          const sql2 = `UPDATE usercomments SET isLike = ? WHERE commentId = ? AND userPhone = ?`
+          const [result2] = await db.query(sql2, ['0', commentId, userPhone])
+        }
+      }else {
+        // 无记录
+          const sql2 = `INSERT INTO usercomments (commentId, userPhone, isLike, createTime) VALUES (?, ?, ?, NOW())`
+          const [result2] = await db.query(sql2, [commentId, userPhone, '1'])
+      }
+      res.json({
+        code: 200,
+        message: '点赞成功'
+      })
+  } catch (error) {
+    console.error('评论点赞失败:', error)
+    res.status(500).json({
+      code: 500,
+      message: '服务器错误'
+    })
+  }
+})
+// 回复
+router.post('/:id/comments/:commentId/reply', async (req, res) => {
+  try {
+    const {id, commentId} = req.params
+    const {content, userPhone, userName, userPic, parentId, level} = req.body
+    const sql = `INSERT INTO comments (articleId, content, userPhone, userName, userPic, parentId, level, createTime) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`
+    const [result] = await db.query(sql, [id, content, userPhone, userName, userPic, parentId, level])
+    const userComment = await db.query('SELECT * FROM comments WHERE commentId = ?',[result.insertId])
+    res.json({
+      code: 200,
+      message: '回复评论成功',
+      userComment: userComment[0]
+    })
+  } catch (error) {
+    console.error('评论回复失败:', error)
+  }
+})
 export default router

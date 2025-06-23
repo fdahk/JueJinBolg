@@ -86,17 +86,34 @@ export const userArticleApi = {
     })
     },
 
-    // 添加评论
-    addComment(articleId, data, userPhone = null) {
+    // 发表评论
+    publishComment(articleId, params = {}) {
     return httpInstance({
         url: `/api/userArticle/${articleId}/comments`,
         method: 'POST',
-        data: {
-            ...data,
-            phone: userPhone || 'anonymous'
-        }
+        data: params
+    })
+    },
+
+
+    // 评论交互功能----------------------------------------
+    // 点赞
+    toggleCommentLike(articleId, commentId, action = 'like', userPhone = null) {
+    return httpInstance({
+        url: `/api/userArticle/${articleId}/comments/${commentId}/like`,
+        method: 'POST',
+        data: { action, userPhone: userPhone }
+    })
+    },  
+    // 回复评论
+    replyComment(articleId, commentId, params = {}) {
+    return httpInstance({
+        url: `/api/userArticle/${articleId}/comments/${commentId}/reply`,
+        method: 'POST',
+        data: params
     })
     }
+
 }
 
 export default userArticleApi
