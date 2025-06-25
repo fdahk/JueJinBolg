@@ -9,6 +9,18 @@ const props = defineProps({
     articleId: {
         type: String,
         required: true
+    },
+    parentId: {
+        type: String,
+        required: true
+    },
+    level: {
+        type: Number,
+        required: true
+    },
+    parentName: {
+        type: String,
+        required: true
     }
 })
 const emits = defineEmits(['updateComment'])
@@ -211,20 +223,22 @@ const handleClickOutside = (event) => {
 // 发送评论
 const submitComment = async () => {
     try {
-        // console.log(props.articleId)
+        // console.log(props.parentName)
         const res = await userArticleApi.publishComment(props.articleId, 
             {
-                content: commentForm.content,
+                content: commentForm.content.trim(),
                 userPhone: userStore.userPhone,
                 userName: userStore.userName,
                 userPic: userStore.userPic,
-                parentId: null,
-                level: 1
+                parentId: props.parentId,
+                level: props.level,
+                parentName: props.parentName
             }
         )
         if (res.data.code === 200) {
             showSuccess('评论发表成功')
             commentForm.content = ''
+            //确保数据更新后再调整输入框高度
             setTimeout(() => {
                 resizeTextarea(document.querySelector('.input-content-textarea'))
             }, 0)
@@ -287,7 +301,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    console.log("销毁了回复框事件监听")
+    // console.log("销毁了回复框事件监听")
     document.removeEventListener('click', handleClickOutside) 
 })
 </script>

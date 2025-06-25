@@ -528,18 +528,18 @@ try {
 router.get('/:id/comments', async (req, res) => {
   const {id} = req.params 
   // 不是req.query.params
-  const {page, limit,sort} = req.query
+  const {page, limit,sort,level,parentId} = req.query
   // console.log('page', page)
   // console.log('limit', limit)
   // console.log('sort', sort)
   const offset = (page - 1) * limit 
-  const sql = `SELECT * FROM comments WHERE articleId = ? ORDER BY ${sort} LIMIT ${offset}, ${limit}`
+  const sql = `SELECT * FROM comments WHERE articleId = ? AND level = ? AND parentId = ? ORDER BY ${sort} LIMIT ${offset}, ${limit}`
   // COUNT(*) 是SQL中的一个聚合函数
-  const sqlCount = `SELECT COUNT(*) AS total FROM comments WHERE articleId = ?`
+  const sqlCount = `SELECT COUNT(*) AS total FROM comments WHERE articleId = ? AND level = ? AND parentId = ?`
   try {
     // id不存在导致报错了
-    const [comments] = await db.query(sql, [id])
-    const [total] = await db.query(sqlCount, [id])
+    const [comments] = await db.query(sql, [id, level, parentId])
+    const [total] = await db.query(sqlCount, [id, level, parentId])
     res.json({
       code: 200,
       message: '获取评论成功',
@@ -561,9 +561,9 @@ router.get('/:id/comments', async (req, res) => {
 router.post('/:id/comments', async (req, res) => {
   try {
     const {id} = req.params
-    const {content, userPhone, userName, userPic, parentId, level} = req.body
-    const sql = `INSERT INTO comments (articleId, content, userPhone, userName, userPic, parentId, level, createTime) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`
-    const [result] = await db.query(sql, [id, content, userPhone, userName, userPic, parentId, level])
+    const {content, userPhone, userName, userPic, parentId, level, parentName} = req.body
+    const sql = `INSERT INTO comments (articleId, content, userPhone, userName, userPic, parentId, level, parentName, createTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`
+    const [result] = await db.query(sql, [id, content, userPhone, userName, userPic, parentId, level, parentName])
     const userComment = await db.query('SELECT * FROM comments WHERE commentId = ?',[result.insertId])
     res.json({
       code: 200,
