@@ -8,6 +8,8 @@ import accountSetting from '@/views/Setting/components/accountSetting.vue'
 // 首页文章组件
 import homeArticle from '@/views/Home/components/HomeArticle.vue'
 import ArticleDetail from '@/views/Article/IndexView.vue'
+// 搜索页组件
+import SearchView from '@/views/Search/IndexView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -94,6 +96,7 @@ const router = createRouter({
         {
           path : 'setting',
           component: settingView,
+          //设置三级路由
           children: [
             {
               // 设置为‘/’会很诡异
@@ -108,12 +111,18 @@ const router = createRouter({
 
           ]
         },
-        // 文章详情页路由
+        // 文章详情页二级路由
         {
           path: '/api/article/:id',
           name: 'ArticleDetail',
           component: ArticleDetail,
           props: true // 将路由参数作为props传递给组件
+        },
+        // 搜索页二级路由
+        {
+          path: '/search',
+          name: 'Search',
+          component: SearchView
         }
       ]
     },

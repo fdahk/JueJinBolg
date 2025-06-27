@@ -21,7 +21,6 @@ const inputComment = (value) => {
 // 关闭侧边评论
 const sideCommentRef = ref() // 绑定下侧边评论区
 // const articleInteractRef = ref() // 绑定交互按钮，用css类绑定更方便
-
 const closeSideComment = (e) => {
     // 侧边栏没有打开，不处理
     if (!showSideComment.value) return
