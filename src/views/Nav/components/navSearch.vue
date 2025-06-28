@@ -207,13 +207,20 @@ onUnmounted(() => {
         }
       }
       .historyList {
+        display: flex;
+        flex-direction: column;
+        // justify-content: space-between;
         border: 1px solid rgba(119, 118, 118, 0.5);
         .historyContent {
           overflow: hidden;
           padding-left: 8px;
           font-size: .9rem;
-          color: rgba(0,0,0, .8);
+          color: rgba(0,0,0, .5);
           cursor: pointer;
+          padding: 5px 8px;
+          &:hover {
+            background-color: rgba(119, 118, 118, 0.2);
+          }
           // border-bottom: 1px solid rgba(119, 118, 118, 0.2);
         }
       }

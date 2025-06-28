@@ -3,6 +3,35 @@ import db from '../dataBase/index.js'
 
 const router = express.Router()
 
+// 文章操作接口--------------------------------------------------------
+
+// 创建文章
+router.post('/create', async (req, res) => {
+  const { author, title, content, summary, cover, category, tag,status,userPhone } = req.body
+  try {
+    const sql = `INSERT INTO articles 
+    (title, content, summary, tag, category, cover, author,status,createTime,updateTime,userPhone) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)`
+    const [result] = await db.query(sql, [title, content, summary, tag, category, cover, author,status,userPhone])
+    res.json({ code: 200, message: '创建成功', data: result })
+  } catch (error) {
+    console.error('创建文章失败:', error)
+    res.status(500).json({ code: 500, message: '服务器错误' })
+  }
+})
+// 更新文章
+router.put('/update', async (req, res) => {
+  const data = req.body
+  try {
+    const sql = `UPDATE articles SET title = ?, content = ?, summary = ?, tag = ?, category = ?, cover = ?, author = ?, status = ?, userPhone = ? WHERE articleId = ?`
+    const [result] = await db.query(sql, [data.title, data.content, data.summary, data.tag, data.category, data.cover, data.author, data.status, data.userPhone, data.articleId])
+    res.json({ code: 200, message: '更新成功', data: result })
+  } catch (error) {
+    console.error('更新文章失败:', error)
+    res.status(500).json({ code: 500, message: '服务器错误' })
+  }
+})
+
 // 文章获取接口--------------------------------------------------------
 // 获取文章列表
 router.get('/list', async (req, res) => {

@@ -13,6 +13,7 @@ import SearchView from '@/views/Search/IndexView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // 首页一级路由
     {
       path: '',
       component: Layout,
@@ -126,6 +127,20 @@ const router = createRouter({
         }
       ]
     },
+    // 创作页一级路由
+    {
+      // 组件懒加载，按需引入
+      path: '/creator/write',
+      component: () => import('@/views/creator/writeArtical/IndexView.vue'),
+    },
+    // 文章管理页一级路由
+    // {
+    //   path: '/creator/article',
+    //   component: () => import('@/views/creator/article/IndexView.vue'),
+    // },
+    // 草稿箱页一级路由
+    
+
 
   ],
   // linkActiveClass: 'active', // 包含匹配时的类名（可选）

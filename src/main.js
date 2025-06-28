@@ -9,6 +9,9 @@ import App from './App.vue'
 import router from './router'
 // 引入全局样式，
 import '@/styles/Common.scss'
+// 引入elementPlus
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 //引入El-Icons
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // 引入阿里字体图标样式，比elementPlus好用
@@ -39,8 +42,11 @@ if(userStore.isTokenExpired()) {
   userStore.isLogin = true
 }
 app.use(router)
+app.use(ElementPlus)
 
-app.mount('#app')
+// eleP图标注册的 for 循环,注意在app挂载前使用，确保所有的插件、组件注册都在应用挂载之前完成
+//确保安装 npm install element-plus
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
+app.mount('#app')
