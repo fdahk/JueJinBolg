@@ -32,6 +32,19 @@ router.put('/update', async (req, res) => {
   }
 })
 
+// 获取用户文章
+router.get('/userArticle', async (req, res) => {
+  const { userPhone, status } = req.query
+  try {
+    const sql = `SELECT * FROM articles WHERE userPhone = ? AND status = ?` 
+    const [result] = await db.query(sql, [userPhone, status])
+    res.json({ code: 200, message: '获取成功', data: result })
+  } catch (error) {
+    console.error('获取用户文章失败:', error)
+    res.status(500).json({ code: 500, message: '服务器错误' })
+  }
+})
+
 // 文章获取接口--------------------------------------------------------
 // 获取文章列表
 router.get('/list', async (req, res) => {

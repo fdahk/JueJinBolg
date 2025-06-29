@@ -52,9 +52,9 @@ export const articleApi = {
   },
 
   // 更新文章
-  updateArticle(id, data) {
+  updateArticle(data) {
     return httpInstance({
-      url: `/api/article/update/${id}`,
+      url: `/api/article/update`,
       method: 'PUT',
       data
     })
@@ -65,6 +65,15 @@ export const articleApi = {
     return httpInstance({
       url: `/api/article/delete/${id}`,
       method: 'DELETE'
+    })
+  },
+
+  // 获取用户文章
+  getUserArticle(params = {}) {
+    return httpInstance({
+      url: '/api/article/userArticle',
+      method: 'GET',
+      params
     })
   },
 

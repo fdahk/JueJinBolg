@@ -8,7 +8,7 @@ const userStore = useUserStore()
 const article = reactive({
   title: '',
   content: '',
-  articalId: ''
+  articleId: ''
 })
 
 const showPublishForm = ref(false)
@@ -19,12 +19,15 @@ const publishForm = reactive({
   cover: ''
 })
 
-const availableTags = ref([ '后端', '前端', 'Android', 'iOS', '人工智能', '开发工具', '代码人生', '阅读'])
+const availableTags = ref([ '综合', '后端', '前端', 'Android', 'iOS', '人工智能', '开发工具', '代码人生', '阅读','none','数据库','算法','面试','工具','其他'])
 const categories = ref([
-  { id: 1, name: '前端开发' },
-  { id: 2, name: '后端开发' },
-  { id: 3, name: '技术分享' },
-  { id: 4, name: '生活随笔' }
+  { id:1, name: '前端'},
+  { id:2, name: '后端'},
+  { id:3, name: '人工智能'},
+  { id:4, name: '开发工具'},
+  { id:5, name: '代码人生'},
+  { id:6, name: '阅读'},
+  { id:7, name: '综合'}
 ])
 
 // 内容变化时，自动保存草稿
@@ -84,15 +87,16 @@ const confirmPublish = async () => {
       ...article,
       ...publishForm,
       status: 'published',
-      articalId: article.articalId,
+      articleId: article.articleId,
       userPhone: userStore.userPhone,
       author: userStore.userName
     }
     // 如果文章id存在，则更新文章，否则创建文章
-    if(article.articalId){
-      const res = await articleApi.updateArticle(publishData)
+    let res = null
+    if(article.articleId){
+      res = await articleApi.updateArticle(publishData)
     }else{
-      const res = await articleApi.createArticle(publishData)
+      res = await articleApi.createArticle(publishData)
     }
     if(res.data.code === 200){
       showToast('文章发布成功')
@@ -100,8 +104,7 @@ const confirmPublish = async () => {
       showToast('文章发布失败')
     }
     showPublishForm.value = false
-    // 发布成功后可以跳转到文章列表或文章详情页
-    // router.push('/creator/articles')
+
   } catch (error) {
     showToast('发布失败')
     console.error('发布失败', error)

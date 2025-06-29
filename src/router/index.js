@@ -10,6 +10,7 @@ import homeArticle from '@/views/Home/components/HomeArticle.vue'
 import ArticleDetail from '@/views/Article/IndexView.vue'
 // 搜索页组件
 import SearchView from '@/views/Search/IndexView.vue'
+import CreatorCenter from '@/views/creator/creatorCenter/IndexView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -124,6 +125,44 @@ const router = createRouter({
           path: '/search',
           name: 'Search',
           component: SearchView
+        },
+        // 创作者中心二级路由
+        {
+          path: '/creator',
+          name: 'CreatorCenter',
+          component: CreatorCenter,
+          redirect: 'center',
+          children: [
+            {
+              path: 'center',
+              component: () => import('@/views/creator/creatorCenter/components/HomeView.vue')
+            },
+            {
+              path: 'contentManage/articleManage',
+              component: () => import('@/views/creator/creatorCenter/components/ArticleManage.vue')
+            },
+            {
+              path: 'contentManage/columnManage',
+              component: () => import('@/views/creator/creatorCenter/components/ColumnManage.vue')
+            },
+            {
+              path: 'dataManage/contentData',
+              component: () => import('@/views/creator/creatorCenter/components/ContentData.vue')
+            },
+            {
+              path: 'dataManage/fansData',
+              component: () => import('@/views/creator/creatorCenter/components/FansData.vue')
+            },
+            // 菜单按钮激活样式
+            {
+              path: 'contentManage',
+              component: () => import('@/views/creator/creatorCenter/components/ArticleManage.vue')
+            },
+            {
+              path: 'dataManage',
+              component: () => import('@/views/creator/creatorCenter/components/FansData.vue')
+            }
+          ]
         }
       ]
     },
@@ -131,7 +170,7 @@ const router = createRouter({
     {
       // 组件懒加载，按需引入
       path: '/creator/write',
-      component: () => import('@/views/creator/writeArtical/IndexView.vue'),
+      component: () => import('@/views/creator/writeArticle/IndexView.vue'),
     },
     // 文章管理页一级路由
     // {
@@ -139,12 +178,12 @@ const router = createRouter({
     //   component: () => import('@/views/creator/article/IndexView.vue'),
     // },
     // 草稿箱页一级路由
-    
-
 
   ],
-  // linkActiveClass: 'active', // 包含匹配时的类名（可选）
-  linkExactActiveClass: 'active' // 精确匹配时的类名（关键）
+  //更换默认命名
+  //只有 RouterLink 组件会自动管理这些激活类名，其他元素都需要手动处理
+  linkActiveClass: 'vagueActive', // 包含匹配时的类
+  linkExactActiveClass: 'active' // 精确匹配时的类名
 })
 
 export default router

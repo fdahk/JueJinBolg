@@ -1,6 +1,7 @@
 <script setup>
  import { ref } from 'vue'
-
+import { useRouter } from 'vue-router'
+const router = useRouter()
  // 创作者中心下拉菜单的显示与隐藏
  const showCreatorMenue = ref(false)
   const toShowCreatorMenue = () => {
@@ -17,12 +18,15 @@
     }
   })
 
+const toCreatorCenter = () => {
+  router.push('/creator/center')
+}
 </script>
 
 <template>
   <div class="creatorCenterContainer" :class="{active: showCreatorContainer === false}">
     <div class="creatorCenterBox">
-      <button>创作者中心</button>
+      <button @click="toCreatorCenter">创作者中心</button>
       <el-icon class=" creatorCenterIconBox" @mouseenter="toShowCreatorMenue" @mouseleave="toHideCreatorMenue">
         <CaretBottom class="creatorCenterIcon down"/>
         <CaretTop class=" creatorCenterIcon up"/>
