@@ -48,7 +48,7 @@ Vue Router 会自动为当前匹配的路由链接添加 router-link-active 类�
     top: 90px; // key
     width: 250px;
     // height: 100%; //细节100%，不能写固定高度，滚动时由父容器推着他向上移动，不对，100%也不行
-    height: 600px;
+    height: 100%;
     background-color: white;
     border-radius: 5px;
   }

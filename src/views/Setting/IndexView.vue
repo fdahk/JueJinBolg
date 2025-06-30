@@ -5,17 +5,18 @@ import { useUserStore } from '@/stores/user';
 const userStore = useUserStore()
 </script>
 <template>
-  <div class="sescondViewBox">
+  <div class="setting-container">
     <leftNav />
     <RouterView />   
   </div>
 
 </template>
 <style scoped lang="scss">
-  .sescondViewBox {
+  .setting-container {
     display: flex;
     width: 100%;
-    height: 100%;
+    min-height: 70%;
+    height: 45rem;
     position: relative;
     padding-top: 20px;
   }

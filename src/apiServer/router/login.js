@@ -2,7 +2,7 @@ import express from "express";
 import db from "../dataBase/index.js";
 // 调试代码，创建数据池
 // const pool = db.pool; 
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt'; //暂时不使用
 import jwt from 'jsonwebtoken';
 import {config} from '../config.js';
 import { Message } from "@element-plus/icons-vue";
@@ -111,25 +111,25 @@ router.post("/passwordLogin", async(req, res) => {
 // 手机号+验证码登录接口
 // 1.发送验证码接口
 router.post("/sendCaptcha", async (req, res) => {
-  // console.log(req) //调试
   const {userPhone} = req.body.params
   console.log(userPhone) //调试
-  // 手机号校验
-  //。。。。。。。。。。
+  // 手机号校验,暂时不校验
+  // if (!/^1[3-9]\d{9}$/.test(userPhone)) {
+  //   return res.json({code: 400, message: '请输入有效的11位手机号'})
+  // }
   try {
     const captcha = Math.floor(Math.random()*1000000).toString().padStart(6, '0')
     // 有效期1分钟
     const expireTime = new Date(Date.now() + 60000)
     // 存储验证码和过期时间
     const sql = 'insert into captchas (userPhone, captcha, expireTime) values(?,?,?)'
-    // 执行插入数据,注意写法 
     await db.query(sql, [userPhone, captcha, expireTime]) 
     // 一分钟后删除数据
     setTimeout(async () => {
       await db.query("DELETE FROM captchas WHERE userPhone=?", [userPhone]);
     }, 60000)
-    // 模拟发送验证码,实际开发中需要调用短信服务
-    res.json({code: 200, Message: '验证码发送成功'+`${captcha}`})
+    // 模拟发送验证码，实际开发中需要调用短信服务
+    res.json({code: 200, message: '验证码发送成功'+`${captcha}`})
   } catch(err) {
     res.status(500).json({code: 500, message: '服务器错误'})
     console.log(err)
@@ -146,11 +146,6 @@ router.post("/captchaLogin", async (req, res) => {
   // 。。。。。。。。。。。。。、
   try {
     const sql = 'select * from tjlogs.captchas where userPhone =? and captcha =? and expireTime >now()'
-    // 打印预处理后的 SQL（用于调试）,报错了不知道为什么
-    // const debugSql = db.pool.format(sql, [userPhone, captcha]);
-    // console.log('实际执行的 SQL:', debugSql); //验证实际执行sql调试
-    // const R = await db.query('select * from captchas') 
-    // console.log(R)
     const [captchaRes] = await db.query(sql, [userPhone,captcha]) 
     // console.log(captchaRes) //调试
     if(captchaRes.length === 0) {
@@ -176,4 +171,23 @@ router.post("/captchaLogin", async (req, res) => {
    console.log(err)
   }
 })
+
+// 修改密码接口
+router.post("/updatePassword", async (req, res) => {
+  const {userPhone, password,captcha} = req.body.params
+  try {
+    const sql = 'select * from captchas where userPhone =? and captcha =? and expireTime >now()'
+    const [captchaRes] = await db.query(sql, [userPhone,captcha])
+    if(captchaRes.length === 0) {
+      return res.json({code: 400, message: '验证码错误或已过期'})
+    }
+    const sql2 = 'update users set password =? where userPhone =?'
+    await db.query(sql2, [password, userPhone])
+    res.json({code: 200, message: '修改密码成功'})
+  } catch(err) {
+    res.status(500).json({code: 500, message: '服务器错误'})
+    console.log(err)
+  }
+})
+
 export default router;

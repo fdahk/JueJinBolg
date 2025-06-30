@@ -31,3 +31,10 @@ export const handleCaptchaLoginReq = ({userPhone, captcha}) => {
       params :{userPhone, captcha}
     })
 }
+
+// 修改密码请求
+export const handleUpdatePasswordReq = ({userPhone, password,captcha}) => {
+  return httpInstance.post( '/api/updatePassword', {
+    params :{userPhone, password,captcha}
+  })
+}

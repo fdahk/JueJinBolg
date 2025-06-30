@@ -24,7 +24,7 @@ import { useLoginStore } from '@/stores/login';
 // 注意父级项目的html、body、app的布局方案
 .seccondViewContainer {
   // height: calc(100vh - 88.8px); // 减去顶部导航栏和底部广告栏的高度
-  // height: 100%;
+  height: 100%;
   //高度有内容撑开
   margin-left: 250px;
   margin-right: 250px;

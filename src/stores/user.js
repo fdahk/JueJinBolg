@@ -16,13 +16,14 @@ export const useUserStore = defineStore('user', {
     company: '',       // 公司，可选字段
     website: '',      // 个人主页，可选字段
     introduction: '',   // 个人介绍，可选字段
-    userPhone: ''      // 用户手机号，用于标识用户
+    userPhone: '',      // 用户手机号，用于标识用户
+    isNewUser: false    // 是否是新用户
   }),
   // 持久化存储，默认存储在localStorage中，也可以存储在sessionStorage中，也可以自定义存储位置
   persist: {
     storage: localStorage, // 存储在localStorage中
     paths: ['userName', 'userPic', 'isLogin', 'token', 'startWorkDate', 
-          'profession', 'position', 'company', 'website', 'introduction', 'userPhone'] // 存储哪些字段，默认存储所有字段
+          'profession', 'position', 'company', 'website', 'introduction', 'userPhone', 'isNewUser'] // 存储哪些字段，默认存储所有字段
   },
   actions: {
     isTokenExpired() {
@@ -64,7 +65,7 @@ export const useUserStore = defineStore('user', {
       this.website = ''; // 清除个人主页
       this.introduction = ''; // 清除个人介绍
       this.userPhone = ''; // 清除用户手机号
-      
+      this.isNewUser = false; // 清除是否是新用户
       // 跳转到首页
       router.push('/');
     }

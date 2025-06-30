@@ -2,8 +2,11 @@
   import { defineEmits, ref } from 'vue';
   import { handleGetCaptchaReq,handleCaptchaLoginReq } from '@/apis/login';
   import { useLoginStore } from '@/stores/login';
+  import { showToast } from '@/utils/toast';
+  import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
   const emit = defineEmits(['change']);
+  const router = useRouter();
   const change = () => {
     emit('change');
   }
@@ -11,15 +14,16 @@ import { useUserStore } from '@/stores/user';
   const userPhone = ref('')
   const captcha = ref('');       // 验证码
   const countdown = ref(0);      // 倒计时（秒 
-  const errorMessage = ref('');  // 错误消息
   // 获取验证码
   const handleGetCaptcha = async () => {
     // 验证手机号格式
+    // 以1开头（中国大陆手机号都是1开头）
+    // [3-9]：第二位是3-9之间的数字（目前中国大陆手机号第二位不会是0、1、2）
+    // \d{9}：后面跟9个数字（0-9）
     if (!/^1[3-9]\d{9}$/.test(userPhone.value)) {
-      errorMessage.value = '请输入有效的11位手机号';
+      showToast('请输入有效的11位手机号');
       return
     }
-    errorMessage.value = '';  // 清空错误消息
     // 调用获取验证码请求
     await handleGetCaptchaReq({ userPhone: userPhone.value });
     countdown.value = 60;  // 设置倒计时为60秒
@@ -35,14 +39,19 @@ import { useUserStore } from '@/stores/user';
   const handleLogin = async () => {
     // 验证手机号格式
     if (!/^1[3-9]\d{9}$/.test(userPhone.value)) {
-      errorMessage.value = '请输入有效的11位手机号';
+      showToast('请输入有效的11位手机号');
       return;
     }
     // 调用登录请求，返回token等 
     const res = await handleCaptchaLoginReq({userPhone: userPhone.value, captcha: captcha.value})
     if(res.data.code === 200) {
-      console.log("登陆成功")
+      showToast(res.data.message)
       useLoginStore().closeLogin()  // 关闭登录页面
+      // 如果是新用户，跳转到设置页面设置密码
+      if(res.data.message === '注册成功') {
+        useUserStore().isNewUser = true
+        router.push('/setting/account')
+      }
       // 储存token等信息
       useUserStore().token = res.data.token
       useUserStore().isLogin = true

@@ -352,7 +352,7 @@ const saveProfile = async () => {
       showSuccessMessage(result.data.message || '保存成功')
       // 使用updateUserInfo方法更新用户信息
       userStore.updateUserInfo(cleanFormData)
-      console.log('保存成功:', result)  // 控制台记录成功日志
+      // console.log('保存成功:', result)  // 控制台记录成功日志
     } else {
       // API返回失败状态，显示错误消息
       showErrorMessage(result.data?.message || '保存失败')

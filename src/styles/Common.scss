@@ -31,7 +31,8 @@ body {
   // 使用传统滚动，让TopNav的滚动隐藏功能正常工作
   #app {
     width: 100%;
-    min-height: 100%; // 改为min-height，内容可以超出视口高度
+    // min-height: 100%; // 改为min-height，内容可以超出视口高度
+    height: 100%; //不用这个，孙子元素一路往上继承高度可能继承不到
   }
 }  
 a {

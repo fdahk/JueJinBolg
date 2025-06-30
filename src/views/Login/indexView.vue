@@ -71,12 +71,15 @@
 <style scoped lang="scss">
   .loginContainer {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: space-around;
     background-color: rgba(0, 0, 0, 0.5);
     position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 5000;
   }
 
   .loginBox {

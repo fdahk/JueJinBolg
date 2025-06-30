@@ -3,6 +3,7 @@
   import { handlePasswordLoginReq } from '@/apis/login';
   import { useUserStore } from '@/stores/user';
   import { useLoginStore } from '@/stores/login';
+  import { showToast } from '@/utils/toast';
   const userStore = useUserStore()
   const loginStore = useLoginStore()
   import { defineEmits } from 'vue';
@@ -20,7 +21,7 @@
     console.log(res);// 调试
     // 后端send、statue发送的信息通过res.data.获取
     if(res.data.code === 200) {
-      alert('登录成功')
+      showToast(res.data.message)
       userStore.isLogin = true 
       userStore.token = res.data.token
       // 这里可以优化下，将store的用户信息写成数组或对象形式，直接解构赋值方便点
@@ -28,9 +29,9 @@
       Object.assign(userStore, res.data.userInfo)
       loginStore.showLogin = false
     } else if(res.data.code === 400) {
-      alert('账号或密码错误')
+      showToast(res.data.message)
     }else {
-      alert('服务器异常')
+      showToast(res.data.message)
     }
 
   }
