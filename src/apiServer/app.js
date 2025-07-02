@@ -1,6 +1,7 @@
 // 导入 express 模块
 //  const express = require('express') // es语法不能这样引入
 import express from 'express'
+
 // 创建 express 的服务器实例
 const app = express()
 // 导入密钥
@@ -11,6 +12,18 @@ import expressJWT from 'express-jwt'
 import  cors from 'cors'
 // 将 cors 注册为全局中间件
 app.use(cors())
+// 部署静态资源托管，将dist目录下的文件托管为静态资源
+import path from 'path'
+import { fileURLToPath } from 'url'
+// 兼容 ES Module 下的 __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+// 静态托管 dist 目录
+app.use(express.static(path.resolve(__dirname, '../../dist')))
+// 让前端路由支持 history 模式
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../../dist/index.html'))
+})
 
 // 引入路由
 import search from './router/search.js'
@@ -47,6 +60,11 @@ app.use('/api/article', article)
 app.use('/api/userArticle', userArticle)
 app.use('/search', search)
 // 调用 app.listen 方法，指定端口号并启动web服务器
-app.listen(3007, function () {
-  console.log('api server running at http://127.0.0.1:3007')
- })
+// app.listen(3007, function () {
+//   console.log('api server running at http://127.0.0.1:3007')
+//  })
+
+const port = process.env.PORT || 3007 // 从环境变量中获取端口号，如果没有则使用3007
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`)
+})

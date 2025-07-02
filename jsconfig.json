@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // 路径别名
     "paths": {
       "@/*": ["./src/*"]
     }

@@ -18,9 +18,10 @@ export default defineConfig({
     },
   },
   css: {
+    //CSS 预处理器配置
     preprocessorOptions: {
       scss: {
-        additionalData:  `@import "@/styles/var.scss";`
+        additionalData:  `@import "@/styles/var.scss";` //每个 SCSS 文件编译前自动注入的代码，全局引入变量
       }
     }
   }
