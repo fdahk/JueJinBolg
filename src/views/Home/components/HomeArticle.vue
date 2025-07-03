@@ -200,15 +200,12 @@ onMounted(() => {
   
   // 添加滚动监听
   window.addEventListener('scroll', handleScroll, { passive: true })
-  
-  console.log('无限滚动组件已挂载')
 })
 
 // 组件卸载
 onUnmounted(() => {
   // 移除滚动监听
   window.removeEventListener('scroll', handleScroll)
-  console.log('无限滚动组件已卸载')
 })
 </script>
 

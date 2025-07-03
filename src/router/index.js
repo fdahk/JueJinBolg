@@ -166,18 +166,17 @@ const router = createRouter({
         }
       ]
     },
-    // 创作页一级路由
+    // 创作页二级路由
     {
       // 组件懒加载，按需引入
       path: '/creator/write',
       component: () => import('@/views/creator/writeArticle/IndexView.vue'),
     },
-    // 文章管理页一级路由
-    // {
-    //   path: '/creator/article',
-    //   component: () => import('@/views/creator/article/IndexView.vue'),
-    // },
-    // 草稿箱页一级路由
+    // 草稿箱页二级路由
+    {
+      path: '/creator/draftBox',
+      component: () => import('@/views/creator/creatorCenter/components/DraftBox.vue'),
+    },
 
   ],
   //更换默认命名

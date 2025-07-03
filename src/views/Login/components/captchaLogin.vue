@@ -14,6 +14,28 @@ import { useUserStore } from '@/stores/user';
   const userPhone = ref('')
   const captcha = ref('');       // 验证码
   const countdown = ref(0);      // 倒计时（秒 
+  const otherLoginList = [
+    {
+      name: '微信',
+      icon: 'icon-wechat-fill',
+      color: 'green'
+    },
+    {
+      name: 'QQ',
+      icon: 'icon-QQ',
+      color: 'rgba(58, 114, 170, 1)'
+    },
+    {
+      name: '支付宝',
+      icon: 'icon-alipay',
+      color: 'rgba(58, 114, 170, 1)'
+    },
+    {
+      name: 'GitHub',
+      icon: 'icon-github-fill',
+      color: 'black'
+    }
+  ]
   // 获取验证码
   const handleGetCaptcha = async () => {
     // 验证手机号格式
@@ -85,9 +107,11 @@ import { useUserStore } from '@/stores/user';
     </div>
     <div class="otherLoginBox">
         <p style="color: rgba(0, 0, 0, .8); ">其他登陆:</p>
-        <div class="otherLoginList">
-          <v-for ></v-for>
-        </div>
+        <ul class="otherLoginList">
+          <li v-for="item in otherLoginList" :key="item.name">
+              <i class="iconfont" :class="item.icon" :style="{color: item.color}"></i>
+          </li>
+        </ul>
         <div class="changeLoginMethod" @click="change">密码登录</div>
     </div>
   </div>
@@ -178,7 +202,21 @@ import { useUserStore } from '@/stores/user';
         align-items: center;
         font-size: .9rem;
        .otherLoginList {
-           
+        height: 100%;
+        width: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        li {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          .iconfont {
+            font-size: 1.2rem;
+          }
+        }
        }
        .changeLoginMethod {
           color: $primaryColor;

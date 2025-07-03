@@ -22,6 +22,7 @@
     "highlight.js": "^11.11.1",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "marked": "^15.0.12",
     "mysql": "^2.18.1",
     "mysql2": "^3.14.1",

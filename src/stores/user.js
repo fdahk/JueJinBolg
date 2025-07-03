@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import router from '@/router';
 // 已经全局配置了jwt-decode，所以这里不需要再导入
-// import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
+// import jwt from 'jsonwebtoken' //这是node后端专用的库，浏览器环境运行不了
 
 export const useUserStore = defineStore('user', {
   // 配置项的写法是固定的，不要修改

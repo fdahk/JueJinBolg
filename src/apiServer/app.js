@@ -20,10 +20,10 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 // 静态托管 dist 目录
 app.use(express.static(path.resolve(__dirname, '../../dist')))
-// 让前端路由支持 history 模式
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../dist/index.html'))
-})
+// 让前端路由支持 history 模式,返回静态资源
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, '../../dist/index.html'))
+// })
 
 // 引入路由
 import search from './router/search.js'

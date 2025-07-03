@@ -38,15 +38,15 @@ const toCreatorCenter = () => {
           <span class="icon"><i class="iconfont icon-edit"></i></span>
           <span>写文章</span>
         </RouterLink>
-        <RouterLink class="creator-menue-item" to="/creator/draft">
+        <RouterLink class="creator-menue-item" to="/creator/draftBox">
           <span class="icon"><i class="iconfont icon-delete"></i></span>
           <span>草稿箱</span>
         </RouterLink>
-        <RouterLink class="creator-menue-item" to="/creator/draft">
+        <RouterLink class="creator-menue-item" to="/creator/draftBox">
           <span class="icon"><i class="iconfont icon-delete"></i></span>
           <span>待开发</span>
         </RouterLink>
-        <RouterLink class="creator-menue-item" to="/creator/draft">
+        <RouterLink class="creator-menue-item" to="/creator/draftBox">
           <span class="icon"><i class="iconfont icon-delete"></i></span>
           <span>待开发</span>
         </RouterLink>

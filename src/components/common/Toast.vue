@@ -145,8 +145,6 @@ onUnmounted(() => {
 }
 
 .toast-info {
-    /* 非sass写法 */
-//   border-left-color: var(primaryColor);
     border-left-color: $primaryColor;
 }
 
